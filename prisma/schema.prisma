@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+// ============================================
+// USUÁRIOS
+// ============================================
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String?
+  avatar          String?
+  rulesAccepted   Boolean   @default(false)
+  rulesVersion    String?
+  rulesAcceptedAt DateTime?
+  points          Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relações
+  ascents         Ascent[]
+  
+  accounts        Account[]
+  sessions        Session[]
+  
+  @@map("users")
+}
+
+// ============================================
+// SETORES (ex: Lagoa, Sol Nascente)
+// ============================================
+model Sector {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  imageUrl    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  
+  // Relações
+  blocks      Block[]
+  
+  @@map("sectors")
+}
+
+// ============================================
+// BLOCOS (ex: Bloco do Urso, Matrix)
+// ============================================
+model Block {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  imageUrl    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  
+  // Chave estrangeira
+  sectorId    String
+  sector      Sector   @relation(fields: [sectorId], references: [id], onDelete: Cascade)
+  
+  // Relações
+  lines       Line[]
+  
+  @@unique([name, sectorId])
+  @@map("blocks")
+}
+
+// ============================================
+// LINHAS DE ESCALADA (ex: Ursinho V2, Neo V4)
+// ============================================
+model Line {
+  id          String   @id @default(cuid())
+  name        String
+  grade       String
+  description String   @db.Text
+  imageUrl    String?
+  topoImage   String?
+  isProject   Boolean  @default(false)
+  isClosed    Boolean  @default(false)
+  stars       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Chave estrangeira
+  blockId     String
+  block       Block    @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  
+  // Relações
+  ascents     Ascent[]
+  
+  @@unique([name, blockId])
+  @@index([grade])
+  @@map("lines")
+}
+
+// ============================================
+// ASCENSÕES (usuários marcando o que fizeram)
+// ============================================
+model Ascent {
+  id        String   @id @default(cuid())
+  isFlash   Boolean  @default(false)
+  isProject Boolean  @default(false)
+  rating    Int?
+  
+  // Chaves estrangeiras
+  lineId    String
+  line      Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Garante que um usuário não marca a mesma linha duas vezes
+  @@unique([userId, lineId])
+  @@index([userId])
+  @@map("ascents")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}

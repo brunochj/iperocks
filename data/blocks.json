@@ -1,0 +1,346 @@
+[
+  {
+    "id": "block_vale-dos-lirios_3-porquinhos",
+    "name": "3 Porquinhos",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_vale-dos-lirios"
+  },
+  {
+    "id": "block_capitão-jack_alérgico",
+    "name": "Alérgico",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_capitão-jack"
+  },
+  {
+    "id": "block_seu-luiz_artes",
+    "name": "Artes",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_boas-vindas",
+    "name": "Boas Vindas",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_boia-fria",
+    "name": "Boia Fria",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_briga-de-galo",
+    "name": "Briga de Galo",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_briga-de-galo--miragem",
+    "name": "Briga de Galo / Miragem",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_búfalo_búfalo",
+    "name": "Búfalo",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_búfalo"
+  },
+  {
+    "id": "block_cave_cabeça-de-leao",
+    "name": "Cabeça de Leao",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_cave"
+  },
+  {
+    "id": "block_vale-dos-lirios_caixa-baixa",
+    "name": "Caixa Baixa",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_vale-dos-lirios"
+  },
+  {
+    "id": "block_seu-luiz_camel",
+    "name": "Camel",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_camelbola-8",
+    "name": "Camel/Bola 8",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_camisa-de-vênus",
+    "name": "Camisa de Vênus",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_cave_caos-a-lama",
+    "name": "Caos a Lama",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_cave"
+  },
+  {
+    "id": "block_capitão-jack_capitão-jack",
+    "name": "Capitão Jack",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_capitão-jack"
+  },
+  {
+    "id": "block_cave_cave",
+    "name": "Cave",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_cave"
+  },
+  {
+    "id": "block_seu-luiz_cerveró",
+    "name": "Cerveró",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_coffee-shop",
+    "name": "Coffee Shop",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_equinócio",
+    "name": "Equinócio",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_búfalo_fauna",
+    "name": "Fauna",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_búfalo"
+  },
+  {
+    "id": "block_búfalo_flora",
+    "name": "Flora",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_búfalo"
+  },
+  {
+    "id": "block_seu-luiz_free-style",
+    "name": "Free Style",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_capitão-jack_golf",
+    "name": "Golf",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_capitão-jack"
+  },
+  {
+    "id": "block_nascente_iperó",
+    "name": "Iperó",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_nascente"
+  },
+  {
+    "id": "block_vale-dos-lirios_lambda",
+    "name": "Lambda",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_vale-dos-lirios"
+  },
+  {
+    "id": "block_pragas_limão",
+    "name": "Limão",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_pragas"
+  },
+  {
+    "id": "block_seu-luiz_miragem",
+    "name": "Miragem",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_búfalo_mogli",
+    "name": "Mogli",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_búfalo"
+  },
+  {
+    "id": "block_seu-luiz_monalisa--artes",
+    "name": "Monalisa / Artes",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_msp",
+    "name": "MSP",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_nascente_nascente",
+    "name": "Nascente",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_nascente"
+  },
+  {
+    "id": "block_seu-luiz_ovni",
+    "name": "O.V.N.I",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_orquestra",
+    "name": "Orquestra",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_nascente_pé-de-feijão",
+    "name": "Pé de Feijão",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_nascente"
+  },
+  {
+    "id": "block_nascente_planetário",
+    "name": "Planetário",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_nascente"
+  },
+  {
+    "id": "block_pragas_pragas",
+    "name": "Pragas",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_pragas"
+  },
+  {
+    "id": "block_búfalo_redemption",
+    "name": "Redemption",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_búfalo"
+  },
+  {
+    "id": "block_capitão-jack_sauron",
+    "name": "Sauron",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_capitão-jack"
+  },
+  {
+    "id": "block_seu-luiz_surf",
+    "name": "Surf",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_seu-luiz_taxi-lunar",
+    "name": "Taxi Lunar",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_pragas_transtorno",
+    "name": "Transtorno",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_pragas"
+  },
+  {
+    "id": "block_seu-luiz_tricoteiros",
+    "name": "Tricoteiros",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_seu-luiz"
+  },
+  {
+    "id": "block_capitão-jack_xadrez",
+    "name": "Xadrez",
+    "description": "",
+    "imageUrl": "",
+    "order": 0,
+    "sectorId": "sector_capitão-jack"
+  }
+]

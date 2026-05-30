@@ -1,0 +1,51 @@
+[
+  {
+    "id": "sector_vale-dos-lirios",
+    "name": "Vale dos Lirios",
+    "description": "",
+    "imageUrl": "",
+    "order": 0
+  },
+  {
+    "id": "sector_capitão-jack",
+    "name": "Capitão Jack",
+    "description": "",
+    "imageUrl": "",
+    "order": 0
+  },
+  {
+    "id": "sector_seu-luiz",
+    "name": "Seu Luiz",
+    "description": "",
+    "imageUrl": "",
+    "order": 0
+  },
+  {
+    "id": "sector_búfalo",
+    "name": "Búfalo",
+    "description": "",
+    "imageUrl": "",
+    "order": 0
+  },
+  {
+    "id": "sector_cave",
+    "name": "Cave",
+    "description": "",
+    "imageUrl": "",
+    "order": 0
+  },
+  {
+    "id": "sector_nascente",
+    "name": "Nascente",
+    "description": "",
+    "imageUrl": "",
+    "order": 0
+  },
+  {
+    "id": "sector_pragas",
+    "name": "Pragas",
+    "description": "",
+    "imageUrl": "",
+    "order": 0
+  }
+]
