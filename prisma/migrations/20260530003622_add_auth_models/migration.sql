@@ -3,7 +3,7 @@ CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "name" TEXT,
-    "avatar" TEXT,
+    "image" TEXT,
     "rulesAccepted" BOOLEAN NOT NULL DEFAULT false,
     "rulesVersion" TEXT,
     "rulesAcceptedAt" TIMESTAMP(3),

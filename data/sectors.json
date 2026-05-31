@@ -1,51 +1,51 @@
 [
   {
-    "id": "sector_vale-dos-lirios",
+    "id": "sector-vale-dos-lirios",
     "name": "Vale dos Lirios",
     "description": "",
-    "imageUrl": "",
-    "order": 0
+    "order": 1,
+    "createdAt": ""
   },
   {
-    "id": "sector_capitão-jack",
+    "id": "sector-capitao-jack",
     "name": "Capitão Jack",
     "description": "",
-    "imageUrl": "",
-    "order": 0
+    "order": 2,
+    "createdAt": ""
   },
   {
-    "id": "sector_seu-luiz",
+    "id": "sector-seu-luiz",
     "name": "Seu Luiz",
     "description": "",
-    "imageUrl": "",
-    "order": 0
+    "order": 3,
+    "createdAt": ""
   },
   {
-    "id": "sector_búfalo",
+    "id": "sector-bufalo",
     "name": "Búfalo",
     "description": "",
-    "imageUrl": "",
-    "order": 0
+    "order": 4,
+    "createdAt": ""
   },
   {
-    "id": "sector_cave",
+    "id": "sector-cave",
     "name": "Cave",
     "description": "",
-    "imageUrl": "",
-    "order": 0
+    "order": 5,
+    "createdAt": ""
   },
   {
-    "id": "sector_nascente",
+    "id": "sector-nascente",
     "name": "Nascente",
     "description": "",
-    "imageUrl": "",
-    "order": 0
+    "order": 6,
+    "createdAt": ""
   },
   {
-    "id": "sector_pragas",
+    "id": "sector-pragas",
     "name": "Pragas",
     "description": "",
-    "imageUrl": "",
-    "order": 0
+    "order": 7,
+    "createdAt": ""
   }
 ]

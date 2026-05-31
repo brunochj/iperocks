@@ -1,130 +1,139 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
-// ============================================
-// USUÁRIOS
-// ============================================
 model User {
   id              String    @id @default(cuid())
   email           String    @unique
   name            String?
-  avatar          String?
+  username        String?   @unique
+  bio             String?   @db.Text
+  image          String?
   rulesAccepted   Boolean   @default(false)
   rulesVersion    String?
   rulesAcceptedAt DateTime?
   points          Int       @default(0)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  
-  // Relações
+  emailVerified   DateTime? // para o NextAuth
   ascents         Ascent[]
-  
+  reviews         Review[]
+  alerts          Alert[]
   accounts        Account[]
   sessions        Session[]
-  
+
   @@map("users")
 }
 
-// ============================================
-// SETORES (ex: Lagoa, Sol Nascente)
-// ============================================
 model Sector {
   id          String   @id @default(cuid())
   name        String   @unique
   description String?
-  imageUrl    String?
   order       Int      @default(0)
   createdAt   DateTime @default(now())
-  
-  // Relações
+
   blocks      Block[]
-  
+
   @@map("sectors")
 }
 
-// ============================================
-// BLOCOS (ex: Bloco do Urso, Matrix)
-// ============================================
 model Block {
   id          String   @id @default(cuid())
   name        String
   description String?
-  imageUrl    String?
   order       Int      @default(0)
   createdAt   DateTime @default(now())
-  
-  // Chave estrangeira
+
   sectorId    String
   sector      Sector   @relation(fields: [sectorId], references: [id], onDelete: Cascade)
-  
-  // Relações
+
   lines       Line[]
-  
+
   @@unique([name, sectorId])
   @@map("blocks")
 }
 
-// ============================================
-// LINHAS DE ESCALADA (ex: Ursinho V2, Neo V4)
-// ============================================
 model Line {
   id          String   @id @default(cuid())
   name        String
-  grade       String
+  grade       String   // "V2", "5.10a", "Projeto", etc.
   description String   @db.Text
   imageUrl    String?
-  topoImage   String?
-  isProject   Boolean  @default(false)
-  isClosed    Boolean  @default(false)
-  stars       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Chave estrangeira
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+
   blockId     String
   block       Block    @relation(fields: [blockId], references: [id], onDelete: Cascade)
-  
-  // Relações
+
   ascents     Ascent[]
-  
+  reviews     Review[]
+  alerts      Alert[]
+
   @@unique([name, blockId])
   @@index([grade])
   @@map("lines")
 }
 
-// ============================================
-// ASCENSÕES (usuários marcando o que fizeram)
-// ============================================
 model Ascent {
   id        String   @id @default(cuid())
   isFlash   Boolean  @default(false)
   isProject Boolean  @default(false)
-  rating    Int?
-  
-  // Chaves estrangeiras
+  rating    Int?     // avaliação pessoal do usuário (1-5)
+
   lineId    String
   line      Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Garante que um usuário não marca a mesma linha duas vezes
+
   @@unique([userId, lineId])
-  @@index([userId])
   @@map("ascents")
 }
 
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lineId    String
+  line      Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lineId])
+  @@map("reviews")
+}
+
+model Alert {
+  id          String    @id @default(cuid())
+  type        AlertType
+  description String?
+  resolved    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  lineId      String
+  line        Line      @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@map("alerts")
+}
+
+enum AlertType {
+  NEST
+  BROKEN_HOLD
+  FALL_RISK
+  NO_ACCESS
+}
+
+// NextAuth models (já devem existir)
 model Account {
   id                String  @id @default(cuid())
   userId            String
