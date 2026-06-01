@@ -4,7 +4,6 @@
     "name": "3 Porquinhos",
     "description": "",
     "order": 1,
-    "createdAt": "",
     "sectorId": "sector-vale-dos-lirios"
   },
   {
@@ -12,7 +11,6 @@
     "name": "Alérgico",
     "description": "",
     "order": 2,
-    "createdAt": "",
     "sectorId": "sector-capitao-jack"
   },
   {
@@ -20,7 +18,6 @@
     "name": "Artes",
     "description": "",
     "order": 3,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -28,7 +25,6 @@
     "name": "Boas Vindas",
     "description": "",
     "order": 4,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -36,7 +32,6 @@
     "name": "Boia Fria",
     "description": "",
     "order": 5,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -44,7 +39,6 @@
     "name": "Briga de Galo",
     "description": "",
     "order": 6,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -52,7 +46,6 @@
     "name": "Briga de Galo / Miragem",
     "description": "",
     "order": 7,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -60,7 +53,6 @@
     "name": "Búfalo",
     "description": "",
     "order": 8,
-    "createdAt": "",
     "sectorId": "sector-bufalo"
   },
   {
@@ -68,7 +60,6 @@
     "name": "Cabeça de Leao",
     "description": "",
     "order": 9,
-    "createdAt": "",
     "sectorId": "sector-cave"
   },
   {
@@ -76,7 +67,6 @@
     "name": "Caixa Baixa",
     "description": "",
     "order": 10,
-    "createdAt": "",
     "sectorId": "sector-vale-dos-lirios"
   },
   {
@@ -84,7 +74,6 @@
     "name": "Camel",
     "description": "",
     "order": 11,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -92,7 +81,6 @@
     "name": "Camel/Bola 8",
     "description": "",
     "order": 12,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -100,7 +88,6 @@
     "name": "Camisa de Vênus",
     "description": "",
     "order": 13,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -108,7 +95,6 @@
     "name": "Caos a Lama",
     "description": "",
     "order": 14,
-    "createdAt": "",
     "sectorId": "sector-cave"
   },
   {
@@ -116,7 +102,6 @@
     "name": "Capitão Jack",
     "description": "",
     "order": 15,
-    "createdAt": "",
     "sectorId": "sector-capitao-jack"
   },
   {
@@ -124,7 +109,6 @@
     "name": "Cave",
     "description": "",
     "order": 16,
-    "createdAt": "",
     "sectorId": "sector-cave"
   },
   {
@@ -132,15 +116,13 @@
     "name": "Cerveró",
     "description": "",
     "order": 17,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
     "id": "block-seu-luiz-coffee-shop",
     "name": "Coffee Shop",
-    "description": "",
+    "description": "Evite escalar este bloco em épocas de chuva. Alto risco de quebras de agarra.",
     "order": 18,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -148,7 +130,6 @@
     "name": "Equinócio",
     "description": "",
     "order": 19,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -156,7 +137,6 @@
     "name": "Fauna",
     "description": "",
     "order": 20,
-    "createdAt": "",
     "sectorId": "sector-bufalo"
   },
   {
@@ -164,7 +144,6 @@
     "name": "Flora",
     "description": "",
     "order": 21,
-    "createdAt": "",
     "sectorId": "sector-bufalo"
   },
   {
@@ -172,7 +151,6 @@
     "name": "Free Style",
     "description": "",
     "order": 22,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -180,7 +158,6 @@
     "name": "Golf",
     "description": "",
     "order": 23,
-    "createdAt": "",
     "sectorId": "sector-capitao-jack"
   },
   {
@@ -188,7 +165,6 @@
     "name": "Iperó",
     "description": "",
     "order": 24,
-    "createdAt": "",
     "sectorId": "sector-nascente"
   },
   {
@@ -196,7 +172,6 @@
     "name": "Lambda",
     "description": "",
     "order": 25,
-    "createdAt": "",
     "sectorId": "sector-vale-dos-lirios"
   },
   {
@@ -204,7 +179,6 @@
     "name": "Limão",
     "description": "",
     "order": 26,
-    "createdAt": "",
     "sectorId": "sector-pragas"
   },
   {
@@ -212,7 +186,6 @@
     "name": "Miragem",
     "description": "",
     "order": 27,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -220,23 +193,20 @@
     "name": "Mogli",
     "description": "",
     "order": 28,
-    "createdAt": "",
     "sectorId": "sector-bufalo"
   },
   {
     "id": "block-seu-luiz-monalisa-artes",
     "name": "Monalisa / Artes",
-    "description": "",
+    "description": "Evite escalar este bloco em épocas de chuva. Alto risco de quebras de agarra.",
     "order": 29,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
     "id": "block-seu-luiz-msp",
     "name": "MSP",
-    "description": "",
+    "description": "Evite escalar este bloco em épocas de chuva. Alto risco de quebras de agarra.",
     "order": 30,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -244,7 +214,6 @@
     "name": "Nascente",
     "description": "",
     "order": 31,
-    "createdAt": "",
     "sectorId": "sector-nascente"
   },
   {
@@ -252,7 +221,6 @@
     "name": "O.V.N.I",
     "description": "",
     "order": 32,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -260,7 +228,6 @@
     "name": "Orquestra",
     "description": "",
     "order": 33,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -268,7 +235,6 @@
     "name": "Pé de Feijão",
     "description": "",
     "order": 34,
-    "createdAt": "",
     "sectorId": "sector-nascente"
   },
   {
@@ -276,7 +242,6 @@
     "name": "Planetário",
     "description": "",
     "order": 35,
-    "createdAt": "",
     "sectorId": "sector-nascente"
   },
   {
@@ -284,7 +249,6 @@
     "name": "Pragas",
     "description": "",
     "order": 36,
-    "createdAt": "",
     "sectorId": "sector-pragas"
   },
   {
@@ -292,7 +256,6 @@
     "name": "Redemption",
     "description": "",
     "order": 37,
-    "createdAt": "",
     "sectorId": "sector-bufalo"
   },
   {
@@ -300,7 +263,6 @@
     "name": "Sauron",
     "description": "",
     "order": 38,
-    "createdAt": "",
     "sectorId": "sector-capitao-jack"
   },
   {
@@ -308,7 +270,6 @@
     "name": "Surf",
     "description": "",
     "order": 39,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -316,7 +277,6 @@
     "name": "Taxi Lunar",
     "description": "",
     "order": 40,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -324,7 +284,6 @@
     "name": "Transtorno",
     "description": "",
     "order": 41,
-    "createdAt": "",
     "sectorId": "sector-pragas"
   },
   {
@@ -332,7 +291,6 @@
     "name": "Tricoteiros",
     "description": "",
     "order": 42,
-    "createdAt": "",
     "sectorId": "sector-seu-luiz"
   },
   {
@@ -340,7 +298,6 @@
     "name": "Xadrez",
     "description": "",
     "order": 43,
-    "createdAt": "",
     "sectorId": "sector-capitao-jack"
   }
 ]

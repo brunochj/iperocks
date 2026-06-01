@@ -1,0 +1,466 @@
+[
+    {
+      "id": "alert-fall-risk-simpatia",
+      "type": "FALL_RISK",
+      "description": "Virada pode assustar, atenção",
+      "resolved": false,
+      "lineId": "line-seu-luiz-msp-simpatia",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-bola-8",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-camel-bola-8-bola-oito",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-dente-por-dente",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-camel-dente-por-dente",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-papo-reto",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-camel-papo-reto",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-boca-sem-dente",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-camel-boca-sem-dente",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-papo-torto",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-camel-boca-sem-dente",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-areias-tempo",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-camel-areias-do-tempo",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-grao-olho",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-camel-grao-no-olho",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-mc",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-free-style-mc",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-beat-box",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-free-style-beat-box",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-batalha-da-aldeia",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-free-style-batalha-da-aldeia",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-projeto-9",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-coffee-shop-projeto-9",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-projeto-12",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-coffee-shop-projeto-12",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-capitao-do-ar",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-coffee-shop-capitao-do-ar",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-surreal",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-artes-surreal",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-white-window",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-coffee-shop-white-window",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-pablo-picasso",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-artes-pablo-picasso",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-rodin",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-artes-rodin",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-pensador",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-artes-pensador",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-edith-piaf",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-artes-edith-piaf",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-michelangelo",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-artes-michelangelo",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-capela-sistina",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-artes-capela-sistina",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-persistencia-da-memoria",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-artes-persistencia-da-memoria",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-noite-estrelada",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-artes-noite-estrelada",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-terra-prometida",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-pragas-pragas-terra-prometida",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-alpha",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-vale-dos-lirios-lambda-alpha",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-lambda",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-vale-dos-lirios-lambda-lambda",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-gama",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-vale-dos-lirios-lambda-gama",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-caixa-baixa",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-vale-dos-lirios-caixa-baixa-caixa-baixa",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-ninao",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-nascente-pe-de-feijao-ninao",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-guliver",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-nascente-pe-de-feijao-guliver",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-pe-de-feijao",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-nascente-pe-de-feijao-pe-de-feijao",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-projeto-4",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-nascente-pe-de-feijao-projeto-4",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-pau-brasil",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-pau-brasil",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-willy-wonka",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-willy-wonka",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-aroeira-brava",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-aroeira-brava",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-cacto",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-cacto",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-rosa-do-deserto",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-rosa-do-deserto",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-girassol",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-girassol",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-azaleia",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-azaleia",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-flora",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-flora",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-orquidea",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-orquidea",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-bromelia",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-bromelia",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-ipe-amarelo",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-ipe-amarelo",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-ipe-roxo",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-bufalo-flora-ipe-roxo",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-pescador-de-ilusoes",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-cave-cave-pescador-de-ilusoes",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-salto",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-cave-cave-salto",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-darwin",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-cave-cave-darwin",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-projeto-3",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-cave-cave-projeto-3",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-eagle",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-capitao-jack-golf-eagle",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-oceano",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-capitao-jack-xadrez-oceano",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-projeto-4",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-capitao-jack-xadrez-projeto-4",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-dead-fish",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-capitao-jack-xadrez-dead-fish",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-cavalo",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-capitao-jack-xadrez-cavalo",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-bispo",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-capitao-jack-xadrez-bispo",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-sauron",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-capitao-jack-sauron-sauron",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-gandalf",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-capitao-jack-sauron-gandalf",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    },
+    {
+      "id": "alert-fall-risk-boca-por-boca",
+      "type": "FALL_RISK",
+      "description": "Bloco alto, queda perigosa.",
+      "resolved": false,
+      "lineId": "line-seu-luiz-camel-boca-por-boca",
+      "userId": "cmpu6z1zh0000kcqgxmvzimbx"
+    }
+  ]

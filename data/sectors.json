@@ -2,50 +2,43 @@
   {
     "id": "sector-vale-dos-lirios",
     "name": "Vale dos Lirios",
-    "description": "",
-    "order": 1,
-    "createdAt": ""
+    "description": "Localizado na outra extremidade do terreno, este lindo setor conta com os clássicos blocos dos 3 Porquinhos e o soberbo Lambda.",
+    "order": 1
   },
   {
     "id": "sector-capitao-jack",
     "name": "Capitão Jack",
-    "description": "",
-    "order": 2,
-    "createdAt": ""
+    "description": "Localizado próximo ao setor Cave, basta seguir a trilha que está marcada com fitas para acessar este novo setor. (5 min caminhando desde a entrada da cave)",
+    "order": 2
   },
   {
     "id": "sector-seu-luiz",
     "name": "Seu Luiz",
-    "description": "",
-    "order": 3,
-    "createdAt": ""
+    "description": "Primeiro setor encontrado, nele estão clássicos blocos como o Miragem e o Artes.",
+    "order": 3
   },
   {
     "id": "sector-bufalo",
     "name": "Búfalo",
-    "description": "",
-    "order": 4,
-    "createdAt": ""
+    "description": "Setor localizado abaixo do Nascente. A trilha segue pelo bloco do Planetário, beirando o mesmo pela sua esquerda e logo após descendo e encontrando o bloco da Fauna.",
+    "order": 4
   },
   {
     "id": "sector-cave",
     "name": "Cave",
-    "description": "",
-    "order": 5,
-    "createdAt": ""
+    "description": "Setor mais afastado do camping, trilha por dentro da mata esta inteira demarcada com fitas refletivas e leva cerca de 20’ de caminhada.",
+    "order": 5
   },
   {
     "id": "sector-nascente",
     "name": "Nascente",
-    "description": "",
-    "order": 6,
-    "createdAt": ""
+    "description": "Setor histórico para Iperocks. Foi o primeiro setor descoberto em 2017 e meses depois fechado pelo proprietário. Em Maio/2020 setor reaberto após negociações.",
+    "order": 6
   },
   {
     "id": "sector-pragas",
     "name": "Pragas",
-    "description": "",
-    "order": 7,
-    "createdAt": ""
+    "description": "Setor localizado no “segundo andar”. Para acessar basta contornar o bloco do Miragem e seguir a trilha marcada. Neste setor encontram-se o clássico bloco das Pragas.",
+    "order": 7
   }
 ]
