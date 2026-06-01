@@ -11,16 +11,17 @@ model User {
   id              String    @id @default(cuid())
   email           String    @unique
   name            String?
+  image           String?   // ← renomeado de avatar
   username        String?   @unique
   bio             String?   @db.Text
-  image          String?
+  emailVerified   DateTime? // ← obrigatório para o adapter
   rulesAccepted   Boolean   @default(false)
   rulesVersion    String?
   rulesAcceptedAt DateTime?
   points          Int       @default(0)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  emailVerified   DateTime? // para o NextAuth
+
   ascents         Ascent[]
   reviews         Review[]
   alerts          Alert[]
