@@ -1,40 +1,43 @@
-import type { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  pages: {
-    signIn: "/login",
-  },
   secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 dias
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   callbacks: {
     async jwt({ token, user, trigger }) {
-      if (user) {
-        token.id = user.id;
+      const userId = user?.id ?? token.id;
+      if (userId && (user || trigger === "update")) {
         const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
+          where: { id: userId as string },
           select: { rulesAccepted: true },
         });
+        token.id = userId;
         token.rulesAccepted = dbUser?.rulesAccepted ?? false;
       }
-
-      if (trigger === "update" && token.id) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: { rulesAccepted: true },
-        });
-        token.rulesAccepted = dbUser?.rulesAccepted ?? false;
-      }
-
       return token;
     },
     async session({ session, token }) {
@@ -45,4 +48,11 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  pages: {
+    signIn: "/login",
+  },
+  debug: process.env.NODE_ENV === "development",
 };
+
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
