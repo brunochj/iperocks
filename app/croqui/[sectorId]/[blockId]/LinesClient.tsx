@@ -13,7 +13,9 @@ export default function LinesClient({
   const { data: session } = useSession();
   const [filterGrade, setFilterGrade] = useState("");
   const [ascending, setAscending] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(lines.map((line) => [line.id, ascendedIds.has(line.id)]))
+    Object.fromEntries(
+      lines.map((line) => [line.id, ascendedIds.has(line.id)]),
+    ),
   );
   const [loading, setLoading] = useState<Record<string, boolean>>({});
 
@@ -42,19 +44,59 @@ export default function LinesClient({
   const renderAlerts = (lineId: string) => {
     const types = alertsByLine[lineId] || [];
     if (types.includes("FALL_RISK")) {
-      return <span className="text-red-600 ml-2" title="Risco de queda">⚠️</span>;
+      return (
+        <span className="text-red-600 ml-2" title="Risco de queda">
+          ⚠️
+        </span>
+      );
     }
     // outros tipos podem ser adicionados
     return null;
   };
 
+  const [sortBy, setSortBy] = useState("name");
+
+  const sortedAndFiltered = useMemo(() => {
+    let result = [...lines];
+    if (filterGrade) result = result.filter((l) => l.grade === filterGrade);
+    if (sortBy === "name") result.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortBy === "grade") {
+      // ordenação customizada para graus (V0, V1, V2...)
+      const gradeOrder = {
+        VB: 0,
+        V0: 1,
+        V1: 2,
+        V2: 3,
+        V3: 4,
+        V4: 5,
+        V5: 6,
+        V6: 7,
+        V7: 8,
+        V8: 9,
+        V9: 10,
+        V10: 11,
+        V11: 12,
+        V12: 13,
+        V13: 14,
+      };
+      result.sort(
+        (a, b) => (gradeOrder[a.grade] || 99) - (gradeOrder[b.grade] || 99),
+      );
+    }
+    return result;
+  }, [lines, filterGrade, sortBy]);
+
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold">{blockName}</h1>
-      {blockDescription && <p className="text-gray-600 mb-4">{blockDescription}</p>}
+      {blockDescription && (
+        <p className="text-gray-600 mb-4">{blockDescription}</p>
+      )}
 
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Filtrar por grau</label>
+        <label className="block text-sm font-medium text-gray-700">
+          Filtrar por grau
+        </label>
         <select
           value={filterGrade}
           onChange={(e) => setFilterGrade(e.target.value)}
@@ -67,11 +109,22 @@ export default function LinesClient({
             </option>
           ))}
         </select>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="mb-3 p-2 border rounded"
+        >
+          <option value="name">Nome</option>
+          <option value="grade">Grau</option>
+        </select>
       </div>
 
       <div className="space-y-4">
-        {filteredLines.map((line) => (
-          <div key={line.id} className="bg-white rounded-lg shadow p-4 flex items-start gap-4">
+        {sortedAndFiltered.map((line) => (
+          <div
+            key={line.id}
+            className="bg-white rounded-lg shadow p-4 flex items-start gap-4"
+          >
             {line.imageUrl && (
               <img
                 src={line.imageUrl}

@@ -85,6 +85,7 @@ model Ascent {
   isFlash   Boolean  @default(false)
   isProject Boolean  @default(false)
   rating    Int?     // avaliação pessoal do usuário (1-5)
+  createdAt DateTime @default(now())
 
   lineId    String
   line      Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
