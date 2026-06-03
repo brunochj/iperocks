@@ -13,11 +13,10 @@ export default function LinesClient({
   const { data: session } = useSession();
   const [filterGrade, setFilterGrade] = useState("");
   const [ascending, setAscending] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(
-      lines.map((line) => [line.id, ascendedIds.has(line.id)]),
-    ),
+    Object.fromEntries(lines.map((line) => [line.id, ascendedIds.has(line.id)]))
   );
   const [loading, setLoading] = useState<Record<string, boolean>>({});
+  const [expandedLineId, setExpandedLineId] = useState<string | null>(null);
 
   const filteredLines = useMemo(() => {
     if (!filterGrade) return lines;
@@ -40,63 +39,26 @@ export default function LinesClient({
     setLoading((prev) => ({ ...prev, [lineId]: false }));
   };
 
-  // Função para renderizar ícones de alerta
+  const toggleExpand = (lineId: string) => {
+    setExpandedLineId((prev) => (prev === lineId ? null : lineId));
+  };
+
   const renderAlerts = (lineId: string) => {
     const types = alertsByLine[lineId] || [];
     if (types.includes("FALL_RISK")) {
-      return (
-        <span className="text-red-600 ml-2" title="Risco de queda">
-          ⚠️
-        </span>
-      );
+      return <span className="text-red-600 ml-2" title="Risco de queda">⚠️</span>;
     }
-    // outros tipos podem ser adicionados
+    // adicione outros tipos se necessário
     return null;
   };
-
-  const [sortBy, setSortBy] = useState("name");
-
-  const sortedAndFiltered = useMemo(() => {
-    let result = [...lines];
-    if (filterGrade) result = result.filter((l) => l.grade === filterGrade);
-    if (sortBy === "name") result.sort((a, b) => a.name.localeCompare(b.name));
-    if (sortBy === "grade") {
-      // ordenação customizada para graus (V0, V1, V2...)
-      const gradeOrder = {
-        VB: 0,
-        V0: 1,
-        V1: 2,
-        V2: 3,
-        V3: 4,
-        V4: 5,
-        V5: 6,
-        V6: 7,
-        V7: 8,
-        V8: 9,
-        V9: 10,
-        V10: 11,
-        V11: 12,
-        V12: 13,
-        V13: 14,
-      };
-      result.sort(
-        (a, b) => (gradeOrder[a.grade] || 99) - (gradeOrder[b.grade] || 99),
-      );
-    }
-    return result;
-  }, [lines, filterGrade, sortBy]);
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold">{blockName}</h1>
-      {blockDescription && (
-        <p className="text-gray-600 mb-4">{blockDescription}</p>
-      )}
+      {blockDescription && <p className="text-gray-600 mb-4">{blockDescription}</p>}
 
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Filtrar por grau
-        </label>
+        <label className="block text-sm font-medium text-gray-700">Filtrar por grau</label>
         <select
           value={filterGrade}
           onChange={(e) => setFilterGrade(e.target.value)}
@@ -109,58 +71,87 @@ export default function LinesClient({
             </option>
           ))}
         </select>
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="mb-3 p-2 border rounded"
-        >
-          <option value="name">Nome</option>
-          <option value="grade">Grau</option>
-        </select>
       </div>
 
       <div className="space-y-4">
-        {sortedAndFiltered.map((line) => (
-          <div
-            key={line.id}
-            className="bg-white rounded-lg shadow p-4 flex items-start gap-4"
-          >
-            {line.imageUrl && (
-              <img
-                src={line.imageUrl}
-                alt={line.name}
-                className="w-16 h-16 object-cover rounded"
-              />
-            )}
-            <div className="flex-1">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center">
-                  <h3 className="text-lg font-semibold">{line.name}</h3>
-                  {renderAlerts(line.id)}
-                </div>
-                {!ascending[line.id] ? (
-                  <button
-                    onClick={() => handleAscent(line.id)}
-                    disabled={loading[line.id]}
-                    className="bg-green-500 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
-                  >
-                    {loading[line.id] ? "..." : "Completei"}
-                  </button>
-                ) : (
-                  <span className="text-green-600 text-sm">✓ Feito</span>
+        {filteredLines.map((line) => {
+          const isExpanded = expandedLineId === line.id;
+          const hasImage = !!line.imageUrl;
+
+          return (
+            <div
+              key={line.id}
+              className={`bg-white rounded-lg shadow p-4 transition-all cursor-pointer ${
+                isExpanded ? "ring-2 ring-blue-400" : "hover:shadow-md"
+              }`}
+              onClick={() => toggleExpand(line.id)}
+            >
+              <div className="flex items-start gap-4">
+                {/* Imagem miniatura (sempre visível) */}
+                {hasImage && (
+                  <img
+                    src={line.imageUrl}
+                    alt={line.name}
+                    className="w-16 h-16 object-cover rounded"
+                  />
                 )}
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center">
+                      <h3 className="text-lg font-semibold">{line.name}</h3>
+                      {renderAlerts(line.id)}
+                    </div>
+                    {!ascending[line.id] ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // impede que o clique propague para o card (evita expansão)
+                          handleAscent(line.id);
+                        }}
+                        disabled={loading[line.id]}
+                        className="bg-green-500 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
+                      >
+                        {loading[line.id] ? "..." : "Completei"}
+                      </button>
+                    ) : (
+                      <span className="text-green-600 text-sm">✓ Feito</span>
+                    )}
+                  </div>
+                  <div className="mt-1">
+                    <span className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded">
+                      {line.grade}
+                    </span>
+                  </div>
+                  {/* Exibe uma prévia da descrição (apenas se houver) */}
+                  {line.description && !isExpanded && (
+                    <p className="text-gray-600 text-sm mt-2 line-clamp-2">{line.description}</p>
+                  )}
+                </div>
               </div>
-              <div className="mt-1">
-                <span className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded">
-                  {line.grade}
-                </span>
-              </div>
-              {line.description && (
-                <p className="text-gray-600 text-sm mt-2">{line.description}</p>
+
+              {/* Conteúdo expandido */}
+              {isExpanded && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  {hasImage && (
+                    <div className="mb-4">
+                      <img
+                        src={line.imageUrl}
+                        alt={line.name}
+                        className="w-full max-h-96 object-contain rounded-lg"
+                      />
+                    </div>
+                  )}
+                  <div className="prose prose-sm max-w-none">
+                    <h4 className="font-semibold text-gray-800">Descrição</h4>
+                    <p className="text-gray-700 whitespace-pre-wrap">
+                      {line.description || "Nenhuma descrição fornecida."}
+                    </p>
+                  </div>
+                  {/* Adicione outros detalhes aqui se desejar (ex: data de criação, etc.) */}
+                </div>
               )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
