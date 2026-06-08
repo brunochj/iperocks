@@ -11,22 +11,22 @@ model User {
   id              String    @id @default(cuid())
   email           String    @unique
   name            String?
-  image           String?   // ← renomeado de avatar
-  username        String?   @unique
-  bio             String?   @db.Text
-  emailVerified   DateTime? // ← obrigatório para o adapter
+  image           String?
   rulesAccepted   Boolean   @default(false)
   rulesVersion    String?
   rulesAcceptedAt DateTime?
   points          Int       @default(0)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-
+  bio             String?
+  username        String?   @unique
+  emailVerified   DateTime?
+  accounts        Account[]
+  alerts          Alert[]
   ascents         Ascent[]
   reviews         Review[]
-  alerts          Alert[]
-  accounts        Account[]
   sessions        Session[]
+  password        String?
 
   @@map("users")
 }
@@ -37,7 +37,6 @@ model Sector {
   description String?
   order       Int      @default(0)
   createdAt   DateTime @default(now())
-
   blocks      Block[]
 
   @@map("sectors")
@@ -49,10 +48,8 @@ model Block {
   description String?
   order       Int      @default(0)
   createdAt   DateTime @default(now())
-
   sectorId    String
   sector      Sector   @relation(fields: [sectorId], references: [id], onDelete: Cascade)
-
   lines       Line[]
 
   @@unique([name, sectorId])
@@ -60,20 +57,18 @@ model Block {
 }
 
 model Line {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
-  grade       String   // "V2", "5.10a", "Projeto", etc.
-  description String   @db.Text
+  grade       String
+  description String
   imageUrl    String?
   createdAt   DateTime? @default(now())
   updatedAt   DateTime? @updatedAt
-
   blockId     String
-  block       Block    @relation(fields: [blockId], references: [id], onDelete: Cascade)
-
-  ascents     Ascent[]
-  reviews     Review[]
   alerts      Alert[]
+  ascents     Ascent[]
+  block       Block     @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  reviews     Review[]
 
   @@unique([name, blockId])
   @@index([grade])
@@ -81,16 +76,16 @@ model Line {
 }
 
 model Ascent {
-  id        String   @id @default(cuid())
-  isFlash   Boolean  @default(false)
-  isProject Boolean  @default(false)
-  rating    Int?     // avaliação pessoal do usuário (1-5)
-  createdAt DateTime @default(now())
-
-  lineId    String
-  line      Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String   @id @default(cuid())
+  isFlash         Boolean  @default(false)
+  isProject       Boolean  @default(false)
+  rating          Int?
+  lineId          String
+  userId          String
+  createdAt       DateTime @default(now())
+  gradeSuggestion String?
+  line            Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lineId])
   @@map("ascents")
@@ -98,14 +93,13 @@ model Ascent {
 
 model Review {
   id        String   @id @default(cuid())
-  rating    Int      // 1-5
-  comment   String?  @db.Text
+  rating    Int
+  comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   lineId    String
-  line      Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
   userId    String
+  line      Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lineId])
@@ -119,38 +113,28 @@ model Alert {
   resolved    Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-
   lineId      String
-  line        Line      @relation(fields: [lineId], references: [id], onDelete: Cascade)
   userId      String
+  line        Line      @relation(fields: [lineId], references: [id], onDelete: Cascade)
   user        User      @relation(fields: [userId], references: [id])
 
   @@map("alerts")
 }
 
-enum AlertType {
-  NEST
-  BROKEN_HOLD
-  FALL_RISK
-  NO_ACCESS
-}
-
-// NextAuth models (já devem existir)
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -173,4 +157,11 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+enum AlertType {
+  NEST
+  BROKEN_HOLD
+  FALL_RISK
+  NO_ACCESS
 }

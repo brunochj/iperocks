@@ -33,6 +33,16 @@ export default function LineCard({ line, isAscended: initialAscended }) {
               {line.grade}
             </span>
           </div>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            {ratingMap[line.id] && (
+              <span>★ {ratingMap[line.id].toFixed(1)}</span>
+            )}
+            {gradeSuggestionMap[line.id] && (
+              <span className="text-xs text-gray-500">
+                Sugestão: {gradeSuggestionMap[line.id]}
+              </span>
+            )}
+          </div>
           {!ascended ? (
             <button
               onClick={handleAscent}

@@ -9,19 +9,44 @@ export default function LinesClient({
   ascendedIds,
   grades,
   alertsByLine,
+  ratingMap = {},
+  gradeSuggestionMap = {},
 }) {
   const { data: session } = useSession();
   const [filterGrade, setFilterGrade] = useState("");
+  const [sortBy, setSortBy] = useState<"grade-asc" | "grade-desc" | "name-asc">("grade-asc");
   const [ascending, setAscending] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(lines.map((line) => [line.id, ascendedIds.has(line.id)]))
   );
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [expandedLineId, setExpandedLineId] = useState<string | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState<string | null>(null);
+  const [tempRating, setTempRating] = useState<Record<string, number>>({});
+  const [tempGradeSuggestion, setTempGradeSuggestion] = useState<Record<string, string>>({});
+  const [ratingError, setRatingError] = useState<Record<string, string>>({});
 
-  const filteredLines = useMemo(() => {
-    if (!filterGrade) return lines;
-    return lines.filter((line) => line.grade === filterGrade);
-  }, [lines, filterGrade]);
+  // Função para extrair valor numérico do grau (ex: "V2" => 2, "V10" => 10, "Projeto" => 999)
+  const getGradeValue = (grade: string): number => {
+    if (grade === "P") return 999;
+    const match = grade.match(/V(\d+)/i);
+    return match ? parseInt(match[1], 10) : 0;
+  };
+
+  // Aplica filtro e ordenação
+  const sortedLines = useMemo(() => {
+    let filtered = lines;
+    if (filterGrade) {
+      filtered = lines.filter((line) => line.grade === filterGrade);
+    }
+    if (sortBy === "grade-asc") {
+      return [...filtered].sort((a, b) => getGradeValue(a.grade) - getGradeValue(b.grade));
+    }
+    if (sortBy === "grade-desc") {
+      return [...filtered].sort((a, b) => getGradeValue(b.grade) - getGradeValue(a.grade));
+    }
+    // name-asc
+    return [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+  }, [lines, filterGrade, sortBy]);
 
   const handleAscent = async (lineId: string) => {
     if (!session) return;
@@ -33,10 +58,32 @@ export default function LinesClient({
     });
     if (res.ok) {
       setAscending((prev) => ({ ...prev, [lineId]: true }));
+      setShowReviewForm(lineId); // exibe formulário de avaliação
     } else {
       alert("Erro ao registrar ascensão");
     }
     setLoading((prev) => ({ ...prev, [lineId]: false }));
+  };
+
+  const submitReview = async (lineId: string) => {
+    const rating = tempRating[lineId];
+    if (!rating) {
+      setRatingError((prev) => ({ ...prev, [lineId]: "Selecione uma nota de 1 a 5 estrelas" }));
+      return;
+    }
+    setRatingError((prev) => ({ ...prev, [lineId]: "" }));
+    const gradeSuggestion = tempGradeSuggestion[lineId] || null;
+    const res = await fetch("/api/ascent/review", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lineId, rating, gradeSuggestion }),
+    });
+    if (res.ok) {
+      setShowReviewForm(null);
+      window.location.reload(); // recarrega para atualizar médias
+    } else {
+      alert("Erro ao salvar avaliação");
+    }
   };
 
   const toggleExpand = (lineId: string) => {
@@ -48,15 +95,20 @@ export default function LinesClient({
     if (types.includes("FALL_RISK")) {
       return <span className="text-red-600 ml-2" title="Risco de queda">⚠️</span>;
     }
-    // adicione outros tipos se necessário
     return null;
   };
+
+  const gradeOptions = [
+    "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9",
+    "V10", "V11", "V12", "V13", "V14", "V15", "V16", "V17"
+  ];
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold">{blockName}</h1>
       {blockDescription && <p className="text-gray-600 mb-4">{blockDescription}</p>}
 
+      {/* Filtro por grau */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700">Filtrar por grau</label>
         <select
@@ -73,8 +125,31 @@ export default function LinesClient({
         </select>
       </div>
 
+      {/* Ordenação */}
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setSortBy("grade-asc")}
+          className={`px-3 py-1 rounded text-sm ${sortBy === "grade-asc" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+        >
+          Grau ▲
+        </button>
+        <button
+          onClick={() => setSortBy("grade-desc")}
+          className={`px-3 py-1 rounded text-sm ${sortBy === "grade-desc" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+        >
+          Grau ▼
+        </button>
+        <button
+          onClick={() => setSortBy("name-asc")}
+          className={`px-3 py-1 rounded text-sm ${sortBy === "name-asc" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+        >
+          Nome A-Z
+        </button>
+      </div>
+
+      {/* Lista de linhas */}
       <div className="space-y-4">
-        {filteredLines.map((line) => {
+        {sortedLines.map((line) => {
           const isExpanded = expandedLineId === line.id;
           const hasImage = !!line.imageUrl;
 
@@ -87,7 +162,6 @@ export default function LinesClient({
               onClick={() => toggleExpand(line.id)}
             >
               <div className="flex items-start gap-4">
-                {/* Imagem miniatura (sempre visível) */}
                 {hasImage && (
                   <img
                     src={line.imageUrl}
@@ -104,7 +178,7 @@ export default function LinesClient({
                     {!ascending[line.id] ? (
                       <button
                         onClick={(e) => {
-                          e.stopPropagation(); // impede que o clique propague para o card (evita expansão)
+                          e.stopPropagation();
                           handleAscent(line.id);
                         }}
                         disabled={loading[line.id]}
@@ -116,12 +190,21 @@ export default function LinesClient({
                       <span className="text-green-600 text-sm">✓ Feito</span>
                     )}
                   </div>
-                  <div className="mt-1">
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                     <span className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded">
                       {line.grade}
                     </span>
+                    {ratingMap[line.id] && (
+                      <span className="text-xs text-gray-500">
+                        ★ {ratingMap[line.id].toFixed(1)}
+                      </span>
+                    )}
+                    {gradeSuggestionMap[line.id] && (
+                      <span className="text-xs text-gray-500">
+                        Sugestão: {gradeSuggestionMap[line.id]}
+                      </span>
+                    )}
                   </div>
-                  {/* Exibe uma prévia da descrição (apenas se houver) */}
                   {line.description && !isExpanded && (
                     <p className="text-gray-600 text-sm mt-2 line-clamp-2">{line.description}</p>
                   )}
@@ -146,7 +229,57 @@ export default function LinesClient({
                       {line.description || "Nenhuma descrição fornecida."}
                     </p>
                   </div>
-                  {/* Adicione outros detalhes aqui se desejar (ex: data de criação, etc.) */}
+                </div>
+              )}
+
+              {/* Formulário de avaliação (aparece após marcar "Completei") */}
+              {showReviewForm === line.id && (
+                <div className="mt-4 pt-4 border-t border-gray-200" onClick={(e) => e.stopPropagation()}>
+                  <p className="text-sm font-medium mb-2">Avalie esta linha</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => {
+                          setTempRating((prev) => ({ ...prev, [line.id]: star }));
+                          setRatingError((prev) => ({ ...prev, [line.id]: "" }));
+                        }}
+                      >
+                        <span
+                          className={
+                            star <= (tempRating[line.id] || 0)
+                              ? "text-yellow-500 text-xl"
+                              : "text-gray-300 text-xl"
+                          }
+                        >
+                          ★
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  {ratingError[line.id] && (
+                    <p className="text-red-500 text-xs mb-2">{ratingError[line.id]}</p>
+                  )}
+                  <select
+                    value={tempGradeSuggestion[line.id] || ""}
+                    onChange={(e) =>
+                      setTempGradeSuggestion((prev) => ({ ...prev, [line.id]: e.target.value }))
+                    }
+                    className="border rounded p-1 text-sm w-full"
+                  >
+                    <option value="">Sugerir grau (opcional)</option>
+                    {gradeOptions.map((g) => (
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => submitReview(line.id)}
+                    className="mt-2 bg-blue-500 text-white px-3 py-1 rounded text-sm"
+                  >
+                    Salvar avaliação
+                  </button>
                 </div>
               )}
             </div>
