@@ -17,9 +17,9 @@ export default withAuth(
       return NextResponse.redirect(new URL("/onboarding", req.url))
     }
     
-    // Se já aceitou e tentar acessar onboarding, redireciona para croqui
+    // Se já aceitou e tentar acessar onboarding, redireciona para home
     if (token.rulesAccepted && isOnboarding) {
-      return NextResponse.redirect(new URL("/croqui", req.url))
+      return NextResponse.redirect(new URL("/home", req.url))
     }
     
     return NextResponse.next()
@@ -32,5 +32,5 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ["/croqui/:path*", "/onboarding", "/perfil/:path*"],
+  matcher: ["/croqui/:path*", "/onboarding", "/perfil/:path*", "/home"],
 }

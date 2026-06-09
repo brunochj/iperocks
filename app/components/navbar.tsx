@@ -18,9 +18,9 @@ export default function Navbar() {
             </Link>
             <div className="hidden md:flex space-x-4">
               <Link
-                href="/"
+                href="/home"
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  isActive("/") ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-200"
+                  isActive("/home") ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-200"
                 }`}
               >
                 Home
@@ -53,7 +53,7 @@ export default function Navbar() {
       </div>
       {/* Menu mobile (opcional, pode ser simplificado) */}
       <div className="md:hidden flex justify-around py-2 border-t">
-        <Link href="/" className="text-gray-700">🏠</Link>
+        <Link href="/home" className="text-gray-700">🏠</Link>
         <Link href="/croqui" className="text-gray-700">🗺️</Link>
         <Link href="/ranking" className="text-gray-700">🏆</Link>
       </div>

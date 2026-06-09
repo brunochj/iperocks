@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from './providers';
-import Navbar from "./components/navbar";
+import AppNavbar from "./components/app-navbar";
+import BackButton from "./components/back-button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,8 +19,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR">
       <body>
-        <Navbar />
-        <Providers>{children}</Providers>
+        <Providers>
+          <AppNavbar />
+          <BackButton />
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -130,7 +130,7 @@ export default function OnboardingPage() {
     const res = await fetch("/api/user/accepted-rules", { method: "POST" });
     if (res.ok) {
       await update();
-      router.push("/croqui");
+      router.replace("/home");
     } else {
       alert("Erro ao aceitar regras. Tente novamente.");
     }

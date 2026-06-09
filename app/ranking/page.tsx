@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -88,11 +87,6 @@ export default async function RankingPage() {
         </div>
       )}
 
-      <div className="mt-8 text-center">
-        <Link href="/" className="text-blue-600 hover:underline">
-          ← Voltar para Home
-        </Link>
-      </div>
     </div>
   );
 }
