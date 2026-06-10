@@ -64,7 +64,7 @@ export default async function HomePage() {
         </ul>
       )}
 
-      <div className="mt-8 text-center">
+      {/* <div className="mt-8 text-center">
         <Link
           href="/croqui"
           className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
@@ -74,7 +74,7 @@ export default async function HomePage() {
         <Link href="/ranking" className="text-blue-500 hover:underline">
           Ver Ranking
         </Link>
-      </div>
+      </div> */}
     </div>
   );
 }

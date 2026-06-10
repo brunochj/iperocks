@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from './providers';
 import AppNavbar from "./components/app-navbar";
+import AppMain from "./components/app-main";
 import BackButton from "./components/back-button";
 
 const geistSans = Geist({
@@ -18,11 +19,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body>
+      <body className={`${geistSans.variable} antialiased`}>
         <Providers>
-          <AppNavbar />
-          <BackButton />
-          {children}
+          <div className="flex min-h-screen flex-col">
+            <AppNavbar />
+            <BackButton />
+            <AppMain>{children}</AppMain>
+          </div>
         </Providers>
       </body>
     </html>
