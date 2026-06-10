@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   const sectors = await prisma.sector.findMany({
     where: { name: { contains: searchTerm, mode: "insensitive" } },
     select: { id: true, name: true },
-    take: 5,
+    // take: 5,
   });
 
   // Buscar blocos (inclui nome do setor pai)
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
       name: true,
       sector: { select: { id: true, name: true } },
     },
-    take: 5,
+    // take: 5,
   });
 
   // Buscar linhas (inclui nome do bloco e do setor)
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
         },
       },
     },
-    take: 5,
+    // take: 5,
   });
 
   const results = [
