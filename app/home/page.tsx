@@ -56,7 +56,7 @@ export default async function HomePage() {
               </div>
               <div className="text-xs text-gray-400">
                 {ascent.createdAt
-                  ? new Date(ascent.createdAt).toLocaleDateString()
+                  ? new Date(ascent.createdAt).toLocaleDateString("pt-BR")
                   : ""}
               </div>
             </li>

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
 export default function LinesClient({
@@ -11,19 +11,33 @@ export default function LinesClient({
   alertsByLine,
   ratingMap = {},
   gradeSuggestionMap = {},
+  expandLineId = null, // nova prop
 }) {
   const { data: session } = useSession();
+  const [expandedLineId, setExpandedLineId] = useState<string | null>(expandLineId);
   const [filterGrade, setFilterGrade] = useState("");
   const [sortBy, setSortBy] = useState<"grade-asc" | "grade-desc" | "name-asc">("grade-asc");
   const [ascending, setAscending] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(lines.map((line) => [line.id, ascendedIds.has(line.id)]))
   );
   const [loading, setLoading] = useState<Record<string, boolean>>({});
-  const [expandedLineId, setExpandedLineId] = useState<string | null>(null);
   const [showReviewForm, setShowReviewForm] = useState<string | null>(null);
   const [tempRating, setTempRating] = useState<Record<string, number>>({});
   const [tempGradeSuggestion, setTempGradeSuggestion] = useState<Record<string, string>>({});
   const [ratingError, setRatingError] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (expandLineId) {
+      setExpandedLineId(expandLineId);
+      // Opcional: rolar a página até o card
+      setTimeout(() => {
+        const element = document.getElementById(`line-${expandLineId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+    }
+  }, [expandLineId]);
 
   // Função para extrair valor numérico do grau (ex: "V2" => 2, "V10" => 10, "Projeto" => 999)
   const getGradeValue = (grade: string): number => {
@@ -156,6 +170,7 @@ export default function LinesClient({
           return (
             <div
               key={line.id}
+              id={`line-${line.id}`}
               className={`bg-white rounded-lg shadow p-4 transition-all cursor-pointer ${
                 isExpanded ? "ring-2 ring-blue-400" : "hover:shadow-md"
               }`}
