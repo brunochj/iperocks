@@ -20,7 +20,7 @@ export default function AppFooterNav() {
   return (
     <nav
       aria-label="Menu principal"
-      className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-200 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.06)] dark:border-gray-800 dark:bg-gray-900"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.06)] dark:border-gray-700 dark:bg-gray-900"
     >
       <div className="mx-auto flex h-16 max-w-7xl items-stretch justify-around px-2 sm:px-6">
         {NAV_ITEMS.map(({ href, label, icon }) => {

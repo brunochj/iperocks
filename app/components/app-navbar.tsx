@@ -17,7 +17,7 @@ export default function AppNavbar() {
 
   return (
     <>
-      {/* <AppHeader /> */}
+      <AppHeader />
       <AppFooterNav />
     </>
   );
