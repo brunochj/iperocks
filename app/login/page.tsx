@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import ThemeToggle from "../components/ThemeToggle";
 
 const REMEMBER_IDENTIFIER_KEY = "iperocks_login_identifier";
 const REMEMBER_ME_KEY = "iperocks_remember_me";
@@ -59,6 +60,11 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">
+      {/* Theme toggle */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
+      
       {/* Background image with overlay and blur */}
       <div className="absolute inset-0 z-0">
         <Image

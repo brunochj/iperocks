@@ -31,3 +31,35 @@ Never rely solely on "the command said Updated 5 lines" or "the script printed Y
 
 Add this behavior to every edit task. Re-verify live if the user questions the result.
 <!-- END:always-make-sure-rule -->
+
+<!-- BEGIN:change-only-what-is-asked -->
+# Change Only What Is Explicitly Asked
+
+**Core Principle: Minimal, Targeted Changes**
+
+When the user asks you to fix or change something:
+
+1. **Only change what they explicitly asked for** - Don't add "improvements", "enhancements", or related changes without asking first
+2. **Verify which file/component** - If there are multiple similar files or components, confirm which one should be modified
+3. **When in doubt, ASK** - Never assume what the user wants. If the request is ambiguous or you see multiple ways to implement it, ask for clarification
+4. **No scope creep** - Don't add background colors, gradients, refactors, or style changes unless specifically requested
+5. **Document your understanding** - Before making changes, briefly confirm what you're about to change and why
+
+**Examples:**
+
+❌ **Wrong**: User asks to make cards transparent → Agent changes card styling AND adds page background gradient AND refactors layout  
+✅ **Right**: User asks to make cards transparent → Agent only changes the card background opacity
+
+❌ **Wrong**: User asks to fix error in ComponentA → Agent assumes ComponentB is also wrong and "fixes" it  
+✅ **Right**: User asks to fix error in ComponentA → Agent only fixes ComponentA
+
+❌ **Wrong**: User mentions they want something changed → Agent immediately implements their interpretation  
+✅ **Right**: User mentions they want something changed → Agent asks clarifying questions if the request is ambiguous
+
+**When Unsure:**
+- "I can change X in [file]. Should I also update Y? Or only X?"
+- "There are two similar components: A and B. Which one should I modify?"
+- "Would you like me to [specific change], or did you have something else in mind?"
+
+**Remember**: Restraint is a feature, not a bug. Users appreciate precise, targeted changes over well-intentioned but unwanted modifications.
+<!-- END:change-only-what-is-asked -->

@@ -15,8 +15,8 @@ export default function GradeChart({
 }) {
   const maxCount = Math.max(...data.map((d) => d.count), 0);
   return (
-    <ResponsiveContainer width="100%" height={250}>
-      <BarChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+    <ResponsiveContainer width="100%" height={200}>
+      <BarChart data={data} margin={{ top: 5, right: 5, left: -40, bottom: 5 }}>
         <XAxis dataKey="grade" />
         <YAxis
           domain={[0, Math.ceil(maxCount)]}
@@ -25,7 +25,7 @@ export default function GradeChart({
           allowDecimals={false}
         />
         <Tooltip />
-        <Bar dataKey="count" fill="#4f46e5" />
+        <Bar dataKey="count" fill="#4f46e5" radius={[4 ,4 ,0 ,0]} />
       </BarChart>
     </ResponsiveContainer>
   );

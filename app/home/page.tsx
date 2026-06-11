@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import GradeChart from "@/app/components/GradeChart";
+import CollapsibleCard from "@/app/components/CollapsibleCard";
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -115,9 +116,7 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Gráfico */}
-      <div className="bg-white rounded-xl shadow p-4 mb-6">
-        <h2 className="text-lg font-semibold mb-2">Mandou quantos?</h2>
+      <CollapsibleCard title="Mandou quantos?">
         {chartData.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
             Nenhuma cadena registrada. Vá ao{" "}
@@ -129,16 +128,9 @@ export default async function HomePage() {
         ) : (
           <GradeChart data={chartData} />
         )}
-      </div>
+      </CollapsibleCard>
 
-      {/* Ranking */}
-      <div className="bg-white rounded-xl shadow p-4 mb-6">
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-semibold">Ranking Geral</h2>
-          <Link href="/ranking" className="text-sm text-indigo-600">
-            Ver todos →
-          </Link>
-        </div>
+      <CollapsibleCard title="Ranking Geral" defaultExpanded={false}>
         <div className="space-y-2">
           {top5.map((u, idx) => (
             <div key={u.id} className="flex items-center justify-between">
@@ -164,11 +156,9 @@ export default async function HomePage() {
             </>
           )}
         </div>
-      </div>
+      </CollapsibleCard>
 
-      {/* Últimas ascensões */}
-      <div className="bg-white rounded-xl shadow p-4">
-        <h2 className="text-lg font-semibold mb-3">Últimas cadenas</h2>
+      <CollapsibleCard title="Últimas cadenas" defaultExpanded={false}>
         {lastAscents.length === 0 ? (
           <p className="text-gray-500 text-sm">Nenhum boulder mandado ainda.</p>
         ) : (
@@ -185,13 +175,13 @@ export default async function HomePage() {
                   </span>
                 </div>
                 <span className="text-xs text-gray-400">
-                  {new Date(ascent.createdAt).toLocaleDateString()}
+                  {new Date(ascent.createdAt).toLocaleDateString("pt-BR")}
                 </span>
               </li>
             ))}
           </ul>
         )}
-      </div>
+      </CollapsibleCard>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function OnboardingPage() {
   const { data: session, update } = useSession();
@@ -126,8 +127,13 @@ export default function OnboardingPage() {
   if (!session) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="flex h-screen w-full max-w-md flex-col overflow-hidden bg-white shadow-xl md:rounded-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative">
+      {/* Theme toggle */}
+      <div className="absolute top-4 right-4 z-30">
+        <ThemeToggle />
+      </div>
+      
+      <div className="flex h-screen w-full max-w-md flex-col overflow-hidden bg-white dark:bg-gray-900 shadow-xl md:rounded-2xl">
         {/* Área da imagem (topo) */}
         <div className="relative h-[60vh] shrink-0 bg-indigo-50 sm:h-56">
           {/* <Image

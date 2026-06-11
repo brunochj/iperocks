@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -73,6 +74,11 @@ export default function RegisterPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">
+      {/* Theme toggle */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
+      
       <div className="absolute inset-0 z-0">
         <Image
           src="https://res.cloudinary.com/dszmb7soi/image/upload/iperocks_home" // coloque sua imagem em public/images/
