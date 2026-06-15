@@ -82,20 +82,20 @@ export default function SearchBar() {
   };
 
   return (
-    <div ref={wrapperRef} className="relative w-full max-w-md mx-auto mb-4">
+    <div ref={wrapperRef} className="relative w-full">
       <div className="relative">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar setor, bloco ou linha..."
-          className="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         />
-        <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+        <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-500" />
         {query && (
           <button
             onClick={() => setQuery("")}
-            className="absolute right-3 top-2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
           >
             ✕
           </button>
@@ -103,28 +103,28 @@ export default function SearchBar() {
       </div>
 
       {loading && (
-        <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg p-3 text-center text-gray-500">
+        <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg dark:shadow-gray-900 p-3 text-center text-gray-500 dark:text-gray-400">
           <Loader size="sm" />
           <span className="ml-2">Buscando...</span>
         </div>
       )}
 
       {isOpen && !loading && results.length > 0 && (
-        <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200 max-h-60 overflow-auto">
+        <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg dark:shadow-gray-900 border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto">
           {results.map((result) => (
             <button
               key={`${result.type}-${result.id}`}
               onClick={() => handleResultClick(result.url)}
-              className="flex items-center w-full px-4 py-2 text-left hover:bg-gray-100 border-b last:border-b-0"
+              className="flex items-center w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 border-b dark:border-gray-700 last:border-b-0"
             >
               <span className="mr-2 text-lg">{getTypeIcon(result.type)}</span>
               <div className="flex-1">
-                <div className="font-medium">{result.name}</div>
+                <div className="font-medium text-gray-900 dark:text-white">{result.name}</div>
                 {result.parent && (
-                  <div className="text-xs text-gray-500">{result.parent}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{result.parent}</div>
                 )}
               </div>
-              <span className="text-xs text-gray-400 ml-2 capitalize">
+              <span className="text-xs text-gray-400 dark:text-gray-500 ml-2 capitalize">
                 {result.type}
               </span>
             </button>
@@ -136,7 +136,7 @@ export default function SearchBar() {
         !loading &&
         query.trim().length >= 2 &&
         results.length === 0 && (
-          <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg p-4 text-center text-gray-500">
+          <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg dark:shadow-gray-900 p-4 text-center text-gray-500 dark:text-gray-400">
             Nenhum resultado encontrado.
           </div>
         )}

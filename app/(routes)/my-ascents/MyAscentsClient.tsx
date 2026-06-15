@@ -57,7 +57,7 @@ export default function MyAscentsClient({
 
   return (
     <div className="max-w-2xl mx-auto p-4 pb-20">
-      <h1 className="text-2xl font-bold mb-4">Minhas Ascensões</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Minhas Ascensões</h1>
 
       {/* Barra de busca */}
       <div className="mb-4">
@@ -66,7 +66,7 @@ export default function MyAscentsClient({
           placeholder="Buscar por nome da linha..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-indigo-500"
         />
       </div>
 
@@ -75,7 +75,7 @@ export default function MyAscentsClient({
         <select
           value={filterGrade}
           onChange={(e) => setFilterGrade(e.target.value)}
-          className="px-3 py-1 border rounded-md text-sm"
+          className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         >
           <option value="">Todos os graus</option>
           {grades.map((g) => (
@@ -88,7 +88,7 @@ export default function MyAscentsClient({
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as any)}
-          className="px-3 py-1 border rounded-md text-sm"
+          className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         >
           <option value="date-desc">Mais recentes</option>
           <option value="grade-asc">Grau (menor → maior)</option>
@@ -100,7 +100,7 @@ export default function MyAscentsClient({
       {/* Lista */}
       <div className="space-y-3">
         {filteredAscents.length === 0 && (
-          <p className="text-center text-gray-500 py-8">
+          <p className="text-center text-gray-500 dark:text-gray-400 py-8">
             Nenhuma ascensão encontrada.
           </p>
         )}
@@ -108,13 +108,13 @@ export default function MyAscentsClient({
           <Link
             key={ascent.id}
             href={`/croqui/${ascent.sectorId}/${ascent.blockId}`}
-            className="block bg-white rounded-lg shadow p-4 hover:shadow-md transition"
+            className="block bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900 p-4 hover:shadow-md dark:hover:shadow-gray-900 transition"
           >
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-semibold text-lg">{ascent.lineName}</h3>
-                <div className="flex gap-2 text-sm text-gray-500 mt-1">
-                  <span className="bg-gray-100 px-2 py-0.5 rounded">
+                <h3 className="font-semibold text-lg text-gray-900 dark:text-white">{ascent.lineName}</h3>
+                <div className="flex gap-2 text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  <span className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded">
                     {ascent.grade}
                   </span>
                   <span>
@@ -122,12 +122,12 @@ export default function MyAscentsClient({
                   </span>
                 </div>
                 {ascent.rating && (
-                  <span className="text-xs text-yellow-600 mt-1 block">
+                  <span className="text-xs text-yellow-600 dark:text-yellow-500 mt-1 block">
                     ★ {ascent.rating}/5
                   </span>
                 )}
                 {ascent.gradeSuggestion && (
-                  <span className="text-xs text-gray-500 mt-1 block">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
                     Sugestão: {ascent.gradeSuggestion}
                   </span>
                 )}

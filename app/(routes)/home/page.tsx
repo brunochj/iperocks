@@ -131,6 +131,9 @@ export default async function HomePage() {
       </CollapsibleCard>
 
       <CollapsibleCard title="Ranking Geral" defaultExpanded={false}>
+      <Link href="/ranking" className="text-sm text-gray-500 dark:text-gray-400 pb-4 block">
+            Ver Ranking Geral
+          </Link>
         <div className="space-y-2">
           {top5.map((u, idx) => (
             <div key={u.id} className="flex items-center justify-between">
