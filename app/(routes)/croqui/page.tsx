@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+// import BackButton from "@/app/components/back-button";
 
 export default async function SectorsPage() {
   const sectors = await prisma.sector.findMany({
@@ -7,7 +8,9 @@ export default async function SectorsPage() {
   });
 
   return (
+    
     <div className="p-4 max-w-2xl mx-auto">
+      {/* <BackButton /> */}
       <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Setores</h1>
       <div className="grid grid-cols-1 gap-4">
         {sectors.map((sector) => (

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import ConfirmModal from "@/app/components/ConfirmModal";
 
 export default function LinesClient({
   blockName,
@@ -11,8 +12,11 @@ export default function LinesClient({
   alertsByLine,
   ratingMap = {},
   gradeSuggestionMap = {},
-  expandLineId = null, // nova prop
+  expandLineId = null,
+  userAscents = [], // nova prop
 }) {
+
+  console.log("userAscents recebido:", userAscents); // no início do componente
   const { data: session } = useSession();
   const [expandedLineId, setExpandedLineId] = useState<string | null>(expandLineId);
   const [filterGrade, setFilterGrade] = useState("");
@@ -25,11 +29,25 @@ export default function LinesClient({
   const [tempRating, setTempRating] = useState<Record<string, number>>({});
   const [tempGradeSuggestion, setTempGradeSuggestion] = useState<Record<string, string>>({});
   const [ratingError, setRatingError] = useState<Record<string, string>>({});
+  const [modalState, setModalState] = useState<{ isOpen: boolean; lineId: string | null }>({
+    isOpen: false,
+    lineId: null,
+  });
+
+  // Determinar se a linha pode ser desmarcada (sem avaliação)
+  const canUnmark = (lineId: string) => {
+    // const ascent = userAscents.find((a: any) => a.lineId === lineId);
+    // console.log("canUnmark check:", { lineId, ascent, hasAscent: !!ascent, rating: ascent?.rating, gradeSuggestion: ascent?.gradeSuggestion });
+    // return ascent && !ascent.rating && !ascent.gradeSuggestion;
+    if (!ascending[lineId]) return false;
+    if (showReviewForm === lineId) return true;
+    const ascent = userAscents.find((a: any) => a.lineId === lineId);
+    return !ascent || (!ascent.rating && !ascent.gradeSuggestion);
+  };
 
   useEffect(() => {
     if (expandLineId) {
       setExpandedLineId(expandLineId);
-      // Opcional: rolar a página até o card
       setTimeout(() => {
         const element = document.getElementById(`line-${expandLineId}`);
         if (element) {
@@ -39,26 +57,19 @@ export default function LinesClient({
     }
   }, [expandLineId]);
 
-  // Função para extrair valor numérico do grau (ex: "V2" => 2, "V10" => 10, "Projeto" => 999)
   const getGradeValue = (grade: string): number => {
     if (grade === "P") return 999;
     const match = grade.match(/V(\d+)/i);
     return match ? parseInt(match[1], 10) : 0;
   };
 
-  // Aplica filtro e ordenação
   const sortedLines = useMemo(() => {
     let filtered = lines;
-    if (filterGrade) {
-      filtered = lines.filter((line) => line.grade === filterGrade);
-    }
-    if (sortBy === "grade-asc") {
+    if (filterGrade) filtered = lines.filter((line) => line.grade === filterGrade);
+    if (sortBy === "grade-asc")
       return [...filtered].sort((a, b) => getGradeValue(a.grade) - getGradeValue(b.grade));
-    }
-    if (sortBy === "grade-desc") {
+    if (sortBy === "grade-desc")
       return [...filtered].sort((a, b) => getGradeValue(b.grade) - getGradeValue(a.grade));
-    }
-    // name-asc
     return [...filtered].sort((a, b) => a.name.localeCompare(b.name));
   }, [lines, filterGrade, sortBy]);
 
@@ -72,7 +83,7 @@ export default function LinesClient({
     });
     if (res.ok) {
       setAscending((prev) => ({ ...prev, [lineId]: true }));
-      setShowReviewForm(lineId); // exibe formulário de avaliação
+      setShowReviewForm(lineId);
     } else {
       alert("Erro ao registrar ascensão");
     }
@@ -94,10 +105,29 @@ export default function LinesClient({
     });
     if (res.ok) {
       setShowReviewForm(null);
-      window.location.reload(); // recarrega para atualizar médias
+      window.location.reload();
     } else {
       alert("Erro ao salvar avaliação");
     }
+  };
+
+  const handleRemoveAscent = (lineId: string) => {
+    if (!canUnmark(lineId)) return;
+    setModalState({ isOpen: true, lineId });
+  };
+
+  const confirmRemove = async () => {
+    const lineId = modalState.lineId!;
+    setLoading((prev) => ({ ...prev, [lineId]: true }));
+    const res = await fetch(`/api/ascent?lineId=${lineId}`, { method: "DELETE" });
+    if (res.ok) {
+      setAscending((prev) => ({ ...prev, [lineId]: false }));
+      window.location.reload();
+    } else {
+      alert("Erro ao remover ascensão");
+    }
+    setLoading((prev) => ({ ...prev, [lineId]: false }));
+    setModalState({ isOpen: false, lineId: null });
   };
 
   const toggleExpand = (lineId: string) => {
@@ -114,7 +144,7 @@ export default function LinesClient({
 
   const gradeOptions = [
     "V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9",
-    "V10", "V11", "V12", "V13", "V14", "V15", "V16", "V17"
+    "V10", "V11", "V12", "V13", "V14", "V15", "V16", "V17",
   ];
 
   return (
@@ -122,7 +152,7 @@ export default function LinesClient({
       <h1 className="text-2xl font-bold">{blockName}</h1>
       {blockDescription && <p className="text-gray-600 mb-4">{blockDescription}</p>}
 
-      {/* Filtro por grau */}
+      {/* Filtro e ordenação (mesmo código) */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700">Filtrar por grau</label>
         <select
@@ -132,36 +162,17 @@ export default function LinesClient({
         >
           <option value="">Todos</option>
           {grades.map((grade) => (
-            <option key={grade} value={grade}>
-              {grade}
-            </option>
+            <option key={grade} value={grade}>{grade}</option>
           ))}
         </select>
       </div>
 
-      {/* Ordenação */}
       <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setSortBy("grade-asc")}
-          className={`px-3 py-1 rounded text-sm ${sortBy === "grade-asc" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-        >
-          Grau ▲
-        </button>
-        <button
-          onClick={() => setSortBy("grade-desc")}
-          className={`px-3 py-1 rounded text-sm ${sortBy === "grade-desc" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-        >
-          Grau ▼
-        </button>
-        <button
-          onClick={() => setSortBy("name-asc")}
-          className={`px-3 py-1 rounded text-sm ${sortBy === "name-asc" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-        >
-          Nome A-Z
-        </button>
+        <button onClick={() => setSortBy("grade-asc")} className={`px-3 py-1 rounded text-sm ${sortBy === "grade-asc" ? "bg-blue-500 text-white" : "bg-gray-200"}`}>Grau ▲</button>
+        <button onClick={() => setSortBy("grade-desc")} className={`px-3 py-1 rounded text-sm ${sortBy === "grade-desc" ? "bg-blue-500 text-white" : "bg-gray-200"}`}>Grau ▼</button>
+        <button onClick={() => setSortBy("name-asc")} className={`px-3 py-1 rounded text-sm ${sortBy === "name-asc" ? "bg-blue-500 text-white" : "bg-gray-200"}`}>Nome A-Z</button>
       </div>
 
-      {/* Lista de linhas */}
       <div className="space-y-4">
         {sortedLines.map((line) => {
           const isExpanded = expandedLineId === line.id;
@@ -171,136 +182,95 @@ export default function LinesClient({
             <div
               key={line.id}
               id={`line-${line.id}`}
-              className={`bg-white rounded-lg shadow p-4 transition-all cursor-pointer ${
-                isExpanded ? "ring-2 ring-blue-400" : "hover:shadow-md"
-              }`}
+              className={`bg-white rounded-lg shadow p-4 transition-all cursor-pointer ${isExpanded ? "ring-2 ring-blue-400" : "hover:shadow-md"}`}
               onClick={() => toggleExpand(line.id)}
             >
               <div className="flex items-start gap-4">
-                {hasImage && (
-                  <img
-                    src={line.imageUrl}
-                    alt={line.name}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                )}
+                {hasImage && <img src={line.imageUrl} alt={line.name} className="w-16 h-16 object-cover rounded" />}
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center">
                       <h3 className="text-lg font-semibold">{line.name}</h3>
                       {renderAlerts(line.id)}
                     </div>
-                    {!ascending[line.id] ? (
+                    {ascending[line.id] ? (
+                      canUnmark(line.id) ? (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleRemoveAscent(line.id); }}
+                          disabled={loading[line.id]}
+                          className="text-red-500 text-sm hover:text-red-700 disabled:opacity-50"
+                        >
+                          {loading[line.id] ? "..." : "🗑️ Desfazer"}
+                        </button>
+                      ) : (
+                        <span className="text-green-600 text-sm" title="Já avaliado">✓ Avaliado</span>
+                      )
+                    ) : (
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAscent(line.id);
-                        }}
+                        onClick={(e) => { e.stopPropagation(); handleAscent(line.id); }}
                         disabled={loading[line.id]}
                         className="bg-green-500 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
                       >
                         {loading[line.id] ? "..." : "Completei"}
                       </button>
-                    ) : (
-                      <span className="text-green-600 text-sm">✓ Feito</span>
                     )}
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded">
-                      {line.grade}
-                    </span>
-                    {ratingMap[line.id] && (
-                      <span className="text-xs text-gray-500">
-                        ★ {ratingMap[line.id].toFixed(1)}
-                      </span>
-                    )}
-                    {gradeSuggestionMap[line.id] && (
-                      <span className="text-xs text-gray-500">
-                        Sugestão: {gradeSuggestionMap[line.id]}
-                      </span>
-                    )}
+                    <span className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded">{line.grade}</span>
+                    {ratingMap[line.id] && <span className="text-xs text-gray-500">★ {ratingMap[line.id].toFixed(1)}</span>}
+                    {gradeSuggestionMap[line.id] && <span className="text-xs text-gray-500">Sugestão: {gradeSuggestionMap[line.id]}</span>}
                   </div>
-                  {line.description && !isExpanded && (
-                    <p className="text-gray-600 text-sm mt-2 line-clamp-2">{line.description}</p>
-                  )}
+                  {line.description && !isExpanded && <p className="text-gray-600 text-sm mt-2 line-clamp-2">{line.description}</p>}
                 </div>
               </div>
 
-              {/* Conteúdo expandido */}
               {isExpanded && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  {hasImage && (
-                    <div className="mb-4">
-                      <img
-                        src={line.imageUrl}
-                        alt={line.name}
-                        className="w-full max-h-96 object-contain rounded-lg"
-                      />
-                    </div>
-                  )}
+                  {hasImage && <div className="mb-4"><img src={line.imageUrl} alt={line.name} className="w-full max-h-96 object-contain rounded-lg" /></div>}
                   <div className="prose prose-sm max-w-none">
                     <h4 className="font-semibold text-gray-800">Descrição</h4>
-                    <p className="text-gray-700 whitespace-pre-wrap">
-                      {line.description || "Nenhuma descrição fornecida."}
-                    </p>
+                    <p className="text-gray-700 whitespace-pre-wrap">{line.description || "Nenhuma descrição fornecida."}</p>
                   </div>
                 </div>
               )}
 
-              {/* Formulário de avaliação (aparece após marcar "Completei") */}
               {showReviewForm === line.id && (
                 <div className="mt-4 pt-4 border-t border-gray-200" onClick={(e) => e.stopPropagation()}>
                   <p className="text-sm font-medium mb-2">Avalie esta linha</p>
                   <div className="flex items-center gap-2 mb-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onClick={() => {
-                          setTempRating((prev) => ({ ...prev, [line.id]: star }));
-                          setRatingError((prev) => ({ ...prev, [line.id]: "" }));
-                        }}
-                      >
-                        <span
-                          className={
-                            star <= (tempRating[line.id] || 0)
-                              ? "text-yellow-500 text-xl"
-                              : "text-gray-300 text-xl"
-                          }
-                        >
-                          ★
-                        </span>
+                    {[1,2,3,4,5].map(star => (
+                      <button key={star} onClick={() => { setTempRating(prev => ({ ...prev, [line.id]: star })); setRatingError(prev => ({ ...prev, [line.id]: "" })); }}>
+                        <span className={star <= (tempRating[line.id] || 0) ? "text-yellow-500 text-xl" : "text-gray-300 text-xl"}>★</span>
                       </button>
                     ))}
                   </div>
-                  {ratingError[line.id] && (
-                    <p className="text-red-500 text-xs mb-2">{ratingError[line.id]}</p>
-                  )}
+                  {ratingError[line.id] && <p className="text-red-500 text-xs mb-2">{ratingError[line.id]}</p>}
                   <select
                     value={tempGradeSuggestion[line.id] || ""}
-                    onChange={(e) =>
-                      setTempGradeSuggestion((prev) => ({ ...prev, [line.id]: e.target.value }))
-                    }
+                    onChange={(e) => setTempGradeSuggestion(prev => ({ ...prev, [line.id]: e.target.value }))}
                     className="border rounded p-1 text-sm w-full"
                   >
                     <option value="">Sugerir grau (opcional)</option>
-                    {gradeOptions.map((g) => (
-                      <option key={g} value={g}>
-                        {g}
-                      </option>
-                    ))}
+                    {gradeOptions.map(g => <option key={g} value={g}>{g}</option>)}
                   </select>
-                  <button
-                    onClick={() => submitReview(line.id)}
-                    className="mt-2 bg-blue-500 text-white px-3 py-1 rounded text-sm"
-                  >
-                    Salvar avaliação
-                  </button>
+                  <button onClick={() => submitReview(line.id)} className="mt-2 bg-blue-500 text-white px-3 py-1 rounded text-sm">Salvar avaliação</button>
                 </div>
               )}
             </div>
           );
         })}
       </div>
+
+      {/* Modal de confirmação genérico */}
+      <ConfirmModal
+        isOpen={modalState.isOpen}
+        title="Desmarcar boulder"
+        message="Tem certeza que quer desmarcar este boulder? Você só pode desmarcar se ainda não tiver avaliado."
+        confirmText="Sim, desmarcar"
+        cancelText="Cancelar"
+        onConfirm={confirmRemove}
+        onCancel={() => setModalState({ isOpen: false, lineId: null })}
+      />
     </div>
   );
 }

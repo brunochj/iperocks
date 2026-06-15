@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import BackButton from "@/app/components/back-button";
 
 export default async function RankingPage() {
   const session = await getServerSession(authOptions);
@@ -33,6 +34,7 @@ export default async function RankingPage() {
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
+      <BackButton />
       <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Ranking de Escaladores</h1>
       <p className="text-gray-600 dark:text-gray-400 mb-6">Classificação por número de vias concluídas.</p>
 

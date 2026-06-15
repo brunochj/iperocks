@@ -25,7 +25,7 @@ export default function GradeChart({
           allowDecimals={false}
         />
         <Tooltip />
-        <Bar dataKey="count" fill="#4f46e5" radius={[4 ,4 ,0 ,0]} />
+        <Bar dataKey="count" fill="#F2CB2E" radius={[4 ,4 ,0 ,0]} />
       </BarChart>
     </ResponsiveContainer>
   );

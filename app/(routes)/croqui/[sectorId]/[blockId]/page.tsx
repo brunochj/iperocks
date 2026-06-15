@@ -33,6 +33,11 @@ export default async function LinesPage({
   });
   const ascendedIds = new Set(ascents.map((a) => a.lineId));
 
+  const userAscents = await prisma.ascent.findMany({
+    where: { userId: session.user.id },
+    select: { lineId: true, rating: true, gradeSuggestion: true },
+  });
+
   const alerts = await prisma.alert.findMany({
     where: {
       lineId: { in: block.lines.map((l) => l.id) },
@@ -82,6 +87,7 @@ export default async function LinesPage({
       ratingMap={ratingMap}
       gradeSuggestionMap={gradeSuggestionMap}
       expandLineId={expandLine || null}
+      userAscents={userAscents}
     />
   );
 }

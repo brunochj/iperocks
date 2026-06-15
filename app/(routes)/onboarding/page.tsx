@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import ThemeToggle from "../components/ThemeToggle";
+import ThemeToggle from "../../components/ThemeToggle";
 
 export default function OnboardingPage() {
   const { data: session, update } = useSession();
@@ -98,14 +98,24 @@ export default function OnboardingPage() {
 
   const acceptRules = async () => {
     setLoading(true);
-    const res = await fetch("/api/user/accepted-rules", { method: "POST" });
-    if (res.ok) {
-      await update();
-      router.push("/home");
-    } else {
+    try {
+      const res = await fetch("/api/user/accepted-rules", { method: "POST" });
+      if (res.ok) {
+        // Update the session
+        await update();
+        // Small delay to ensure session is updated
+        await new Promise(resolve => setTimeout(resolve, 100));
+        // Redirect to home
+        window.location.href = "/home";
+      } else {
+        alert("Erro ao aceitar regras. Tente novamente.");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error accepting rules:", error);
       alert("Erro ao aceitar regras. Tente novamente.");
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleNext = () => {

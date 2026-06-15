@@ -4,7 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import AppNavbar from "./components/app-navbar";
 import AppMain from "./components/app-main";
-import BackButton from "./components/back-button";
+// import BackButton from "./components/back-button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +27,7 @@ export default function RootLayout({
         <Providers>
           <div className="flex min-h-screen flex-col">
             <AppNavbar />
-            <BackButton />
+            {/* <BackButton /> */}
             <AppMain>{children}</AppMain>
           </div>
         </Providers>

@@ -104,7 +104,7 @@ export default async function HomePage() {
   return (
     <div className="max-w-2xl mx-auto p-4 pb-20">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      {/* <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
           <span className="text-2xl font-bold text-indigo-600">Iperocks</span>
         </div>
@@ -114,7 +114,7 @@ export default async function HomePage() {
           </span>
           <button className="relative text-xl">🔔</button>
         </div>
-      </div>
+      </div> */}
 
       <CollapsibleCard title="Mandou quantos?">
         {chartData.length === 0 ? (
@@ -158,7 +158,12 @@ export default async function HomePage() {
         </div>
       </CollapsibleCard>
 
-      <CollapsibleCard title="Últimas cadenas" defaultExpanded={false}>
+      <CollapsibleCard title="Últimas cadenas" 
+      // navigateMessage="Ver todas as cadenas" navigateLink="/my-ascents" 
+      defaultExpanded={false}>
+        <Link href="/my-ascents" className="text-sm text-gray-500 dark:text-gray-400 pb-4 block">
+            Ver todas as cadenas
+          </Link>
         {lastAscents.length === 0 ? (
           <p className="text-gray-500 text-sm">Nenhum boulder mandado ainda.</p>
         ) : (

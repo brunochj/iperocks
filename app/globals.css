@@ -1,5 +1,14 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+  }
+}
 
 * {
-  font-family: fibra-one;
+  font-family: montserrat, sans-serif;
 }

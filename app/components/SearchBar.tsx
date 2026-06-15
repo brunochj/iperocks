@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import Loader from "@/app/components/Loader";
 
 type SearchResult = {
   type: "sector" | "block" | "line";
@@ -22,7 +23,10 @@ export default function SearchBar() {
   // Fecha o dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -57,9 +61,11 @@ export default function SearchBar() {
   }, [query]);
 
   const handleResultClick = (url: string) => {
+    setLoading(true);
     setIsOpen(false);
     setQuery("");
     router.push(url);
+    setLoading(false);
   };
 
   const getTypeIcon = (type: string) => {
@@ -98,7 +104,8 @@ export default function SearchBar() {
 
       {loading && (
         <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg p-3 text-center text-gray-500">
-          Buscando...
+          <Loader size="sm" />
+          <span className="ml-2">Buscando...</span>
         </div>
       )}
 
@@ -117,17 +124,22 @@ export default function SearchBar() {
                   <div className="text-xs text-gray-500">{result.parent}</div>
                 )}
               </div>
-              <span className="text-xs text-gray-400 ml-2 capitalize">{result.type}</span>
+              <span className="text-xs text-gray-400 ml-2 capitalize">
+                {result.type}
+              </span>
             </button>
           ))}
         </div>
       )}
 
-      {isOpen && !loading && query.trim().length >= 2 && results.length === 0 && (
-        <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg p-4 text-center text-gray-500">
-          Nenhum resultado encontrado.
-        </div>
-      )}
+      {isOpen &&
+        !loading &&
+        query.trim().length >= 2 &&
+        results.length === 0 && (
+          <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg p-4 text-center text-gray-500">
+            Nenhum resultado encontrado.
+          </div>
+        )}
     </div>
   );
 }

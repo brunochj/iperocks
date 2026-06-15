@@ -5,7 +5,8 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import ThemeToggle from "../components/ThemeToggle";
+import ThemeToggle from "../../components/ThemeToggle";
+import Loader from "../../components/Loader";
 
 const REMEMBER_IDENTIFIER_KEY = "iperocks_login_identifier";
 const REMEMBER_ME_KEY = "iperocks_remember_me";
@@ -13,7 +14,7 @@ const REMEMBER_ME_KEY = "iperocks_remember_me";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = searchParams.get("callbackUrl") || "/home";
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -143,9 +144,9 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition disabled:opacity-50"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {loading ? "Entrando..." : "Entrar"}
+              {loading ? <Loader size="sm" /> : "Entrar"}
             </button>
           </form>
 
@@ -187,7 +188,7 @@ export default function LoginPage() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              {googleLoading ? "Redirecionando..." : "Continuar com Google"}
+              {googleLoading ? <Loader size="sm" /> : "Continuar com Google"}
             </button>
           </div>
 

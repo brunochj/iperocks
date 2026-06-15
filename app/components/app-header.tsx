@@ -1,26 +1,56 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import Image from "next/image";
+import { signOut, useSession } from "next-auth/react";
 import ThemeToggle from "./ThemeToggle";
+import SideDrawer from "./SideDrawer";
+import { useTheme } from "./ThemeProvider";
+import { Bars3Icon } from "@heroicons/react/24/outline";
 
 export default function AppHeader() {
+  const { data: session } = useSession();
+  const { theme } = useTheme();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const userName = session?.user?.name?.split(" ")[0] || session?.user?.email?.split("@")[0] || "Usuário";
+
   return (
-    <header className="sticky top-0 z-20 border-b border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/home" className="text-xl font-bold text-gray-800 dark:text-white">
-          Iperocks
-        </Link>
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="rounded-md bg-red-500 px-3 py-1.5 text-sm text-white transition hover:bg-red-600"
-          >
-            Sair
-          </button>
+    <>
+      <header className="sticky top-0 z-20 border-b border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link href="/home" className="flex items-center">
+            <Image
+              src={theme === "dark" ? "/iperocks_logo_white.svg" : "/iperocks_logo.svg"}
+              alt="Iperocks"
+              width={64}
+              height={64}
+              priority
+              className="h-16 w-auto"
+            />
+          </Link>
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline text-gray-700 dark:text-gray-300">
+              Olá, {userName}
+            </span>
+            <Bars3Icon className="size-6 text-gray-700 dark:text-gray-300" onClick={() => setIsDrawerOpen(true)}/>
+            {/* <button 
+              onClick={() => setIsDrawerOpen(true)}
+              className="relative text-xl hover:opacity-70 transition" 
+              aria-label="Notificações"
+            >
+              🔔
+            </button> */}
+            {/* <ThemeToggle /> */}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+      
+      <SideDrawer 
+        userName={userName} 
+        isOpen={isDrawerOpen} 
+        onClose={() => setIsDrawerOpen(false)} 
+      />
+    </>
   );
 }
