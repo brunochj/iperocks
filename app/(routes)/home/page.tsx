@@ -1,17 +1,17 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import GradeChart from "@/app/components/GradeChart";
-import CollapsibleCard from "@/app/components/CollapsibleCard";
+import GradeChart from "@/components/GradeChart";
+import CollapsibleCard from "@/components/CollapsibleCard";
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
+  const supabase = await createClient();
+  const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+  if (!supabaseUser) redirect("/login");
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email! },
+    where: { email: supabaseUser.email! },
     select: { id: true, name: true, username: true, image: true },
   });
   if (!user) redirect("/login");

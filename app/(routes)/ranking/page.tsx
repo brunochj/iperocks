@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import BackButton from "@/app/components/back-button";
+import { createClient } from "@/lib/supabase/server";
+import BackButton from "@/components/back-button";
 
 export default async function RankingPage() {
-  const session = await getServerSession(authOptions);
+  const supabase = await createClient();
+  const { data: { user: supabaseUser } } = await supabase.auth.getUser();
 
   // Buscar todos os usuários com a contagem de ascensões
   const users = await prisma.user.findMany({
@@ -13,6 +13,7 @@ export default async function RankingPage() {
       name: true,
       username: true,
       image: true,
+      email: true,
       _count: {
         select: { ascents: true },
       },
@@ -27,9 +28,14 @@ export default async function RankingPage() {
 
   // Encontrar a posição do usuário atual (se logado)
   let currentUserRank = null;
-  if (session?.user?.id) {
-    const index = users.findIndex((u) => u.id === session.user.id);
-    if (index !== -1) currentUserRank = index + 1;
+  let currentUserId = null;
+  if (supabaseUser?.email) {
+    const currentUser = users.find(u => u.email === supabaseUser.email);
+    if (currentUser) {
+      currentUserId = currentUser.id;
+      const index = users.findIndex((u) => u.id === currentUser.id);
+      if (index !== -1) currentUserRank = index + 1;
+    }
   }
 
   return (
@@ -47,7 +53,7 @@ export default async function RankingPage() {
           <div
             key={user.id}
             className={`flex items-center justify-between p-3 rounded-lg ${
-              session?.user?.id === user.id
+              currentUserId === user.id
                 ? "bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700"
                 : "bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-900"
             }`}
@@ -68,7 +74,7 @@ export default async function RankingPage() {
                 </p>
               </div>
             </div>
-            {session?.user?.id === user.id && (
+            {currentUserId === user.id && (
               <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
                 Você
               </span>

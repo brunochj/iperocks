@@ -1,15 +1,16 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function PUT(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
+  const supabase = await createClient();
+  const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+  
+  if (!supabaseUser) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+  const user = await prisma.user.findUnique({ where: { email: supabaseUser.email! } });
   if (!user) {
     return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
   }

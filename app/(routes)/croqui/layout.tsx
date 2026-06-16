@@ -1,5 +1,5 @@
-import SearchBar from "@/app/components/SearchBar";
-import BackButton from "@/app/components/back-button";
+import SearchBar from "@/components/SearchBar";
+import BackButton from "@/components/back-button";
 
 export default function CroquiLayout({
   children,

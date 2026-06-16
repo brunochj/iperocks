@@ -1,17 +1,26 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import ThemeToggle from "../../components/ThemeToggle";
+import ThemeToggle from "../../../components/ThemeToggle";
+import { createClient } from "@/lib/supabase/client";
 
 export default function OnboardingPage() {
-  const { data: session, update } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
 
   // Definição dos slides (inclui boas-vindas, cada regra individualmente e aceitação final)
   const slides = [
@@ -99,18 +108,21 @@ export default function OnboardingPage() {
   const acceptRules = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/user/accepted-rules", { method: "POST" });
-      if (res.ok) {
-        // Update the session
-        await update();
-        // Small delay to ensure session is updated
-        await new Promise(resolve => setTimeout(resolve, 100));
-        // Redirect to home
-        window.location.href = "/home";
-      } else {
+      // Update user metadata in Supabase
+      const { error } = await supabase.auth.updateUser({
+        data: { rulesAccepted: true }
+      });
+      
+      if (error) {
         alert("Erro ao aceitar regras. Tente novamente.");
         setLoading(false);
+        return;
       }
+      
+      // Small delay to ensure session is updated
+      await new Promise(resolve => setTimeout(resolve, 100));
+      // Redirect to home
+      window.location.href = "/home";
     } catch (error) {
       console.error("Error accepting rules:", error);
       alert("Erro ao aceitar regras. Tente novamente.");
@@ -134,7 +146,7 @@ export default function OnboardingPage() {
   const slide = slides[currentSlide];
   const isLastSlide = currentSlide === slides.length - 1;
 
-  if (!session) return null;
+  if (!user) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative">

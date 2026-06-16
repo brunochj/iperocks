@@ -1,12 +1,23 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";  // ← importa daqui
+import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const supabase = await createClient();
+  const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+  
+  if (!supabaseUser) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
+  // Get Prisma user from Supabase email
+  const user = await prisma.user.findUnique({
+    where: { email: supabaseUser.email! },
+    select: { id: true },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
   }
 
   const { lineId } = await req.json();
@@ -18,7 +29,7 @@ export async function POST(req: Request) {
   const existing = await prisma.ascent.findUnique({
     where: {
       userId_lineId: {
-        userId: session.user.id,
+        userId: user.id,
         lineId,
       },
     },
@@ -30,7 +41,7 @@ export async function POST(req: Request) {
 
   await prisma.ascent.create({
     data: {
-      userId: session.user.id,
+      userId: user.id,
       lineId,
       isFlash: false,
       isProject: false,
@@ -41,9 +52,21 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const supabase = await createClient();
+  const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+  
+  if (!supabaseUser) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
+  // Get Prisma user from Supabase email
+  const user = await prisma.user.findUnique({
+    where: { email: supabaseUser.email! },
+    select: { id: true },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
   }
 
   const url = new URL(req.url);
@@ -55,7 +78,7 @@ export async function DELETE(req: Request) {
   const ascent = await prisma.ascent.findUnique({
     where: {
       userId_lineId: {
-        userId: session.user.id,
+        userId: user.id,
         lineId,
       },
     },

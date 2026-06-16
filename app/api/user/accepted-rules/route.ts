@@ -1,22 +1,26 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function POST() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: {
+  // Update user metadata in Supabase (no longer using Prisma for this)
+  const { error } = await supabase.auth.updateUser({
+    data: { 
       rulesAccepted: true,
-      rulesAcceptedAt: new Date(),
+      rulesAcceptedAt: new Date().toISOString(),
       rulesVersion: "1.0",
-    },
+    }
   });
+
+  if (error) {
+    return NextResponse.json({ error: "Erro ao atualizar" }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true });
 }

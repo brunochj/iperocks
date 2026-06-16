@@ -1,15 +1,15 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import MyAscentsClient from "./MyAscentsClient";
 
 export default async function MyAscentsPage() {
-  const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
+  const supabase = await createClient();
+  const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+  if (!supabaseUser) redirect("/login");
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email! },
+    where: { email: supabaseUser.email! },
     select: { id: true },
   });
   if (!user) redirect("/login");

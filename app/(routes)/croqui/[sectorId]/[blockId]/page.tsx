@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import LinesClient from "./LinesClient";
 
@@ -15,8 +14,9 @@ export default async function LinesPage({
   const { sectorId, blockId } = await params;
   const { expandLine } = await searchParams;
 
-  const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
+  const supabase = await createClient();
+  const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+  if (!supabaseUser) redirect("/login");
 
   const block = await prisma.block.findUnique({
     where: { id: blockId },

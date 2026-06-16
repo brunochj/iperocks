@@ -1,7 +1,6 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import ConfirmModal from "@/app/components/ConfirmModal";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export default function LinesClient({
   blockName,
@@ -17,7 +16,6 @@ export default function LinesClient({
 }) {
 
   console.log("userAscents recebido:", userAscents); // no início do componente
-  const { data: session } = useSession();
   const [expandedLineId, setExpandedLineId] = useState<string | null>(expandLineId);
   const [filterGrade, setFilterGrade] = useState("");
   const [sortBy, setSortBy] = useState<"grade-asc" | "grade-desc" | "name-asc">("grade-asc");
@@ -74,7 +72,6 @@ export default function LinesClient({
   }, [lines, filterGrade, sortBy]);
 
   const handleAscent = async (lineId: string) => {
-    if (!session) return;
     setLoading((prev) => ({ ...prev, [lineId]: true }));
     const res = await fetch("/api/ascent", {
       method: "POST",
