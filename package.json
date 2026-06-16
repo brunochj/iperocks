@@ -12,8 +12,10 @@
     "@auth/prisma-adapter": "^2.11.2",
     "@heroicons/react": "^2.2.0",
     "@next-auth/prisma-adapter": "^1.0.7",
+    "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
+    "dotenv": "^17.4.2",
     "framer-motion": "^12.40.0",
     "next": "16.2.6",
     "next-auth": "^4.24.14",
@@ -23,7 +25,6 @@
     "uuid": "^14.0.0"
   },
   "devDependencies": {
-    "@prisma/client": "^5.22.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^3.0.0",
