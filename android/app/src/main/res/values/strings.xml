@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Iperocks</string>
+    <string name="title_activity_main">Iperocks</string>
+    <string name="package_name">com.ipe.rocks</string>
+    <string name="custom_url_scheme">com.ipe.rocks</string>
+</resources>
