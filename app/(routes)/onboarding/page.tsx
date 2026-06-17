@@ -102,6 +102,7 @@ export default function OnboardingPage() {
     try {
       const res = await apiFetch("/api/user/accepted-rules", { method: "POST" });
       if (res.ok) {
+        window.dispatchEvent(new Event("iperocks-app-session-change"));
         window.location.href = "/home";
       } else {
         alert("Erro ao aceitar regras. Tente novamente.");

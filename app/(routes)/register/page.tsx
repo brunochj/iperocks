@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ThemeToggle from "../../components/ThemeToggle";
 import { apiFetch } from "@/lib/api-fetch";
+import { setAppSessionToken } from "@/lib/app-session-client";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -51,6 +52,16 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
+      const checkRes = await apiFetch("/api/register/check", {
+        method: "POST",
+        body: JSON.stringify({
+          email: form.email,
+          username: form.username,
+        }),
+      });
+      const checkData = await checkRes.json();
+      if (!checkRes.ok) throw new Error(checkData.error);
+
       const res = await apiFetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -63,7 +74,14 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      router.push("/login?registered=true");
+
+      if (data.authType === "app" && data.access_token) {
+        setAppSessionToken(data.access_token);
+        window.dispatchEvent(new Event("iperocks-app-session-change"));
+        router.push("/onboarding");
+      } else {
+        router.push("/login?registered=true");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {

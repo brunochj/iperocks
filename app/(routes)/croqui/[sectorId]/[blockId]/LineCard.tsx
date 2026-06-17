@@ -36,7 +36,7 @@ export default function LineCard({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 flex items-start gap-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900 p-4 flex items-start gap-4">
       {line.imageUrl && (
         <img
           src={line.imageUrl}
@@ -47,12 +47,12 @@ export default function LineCard({
       <div className="flex-1">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-semibold">{line.name}</h3>
-            <span className="inline-block bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded mt-1">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{line.name}</h3>
+            <span className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs px-2 py-1 rounded mt-1">
               {line.grade}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             {ratingMap[line.id] && (
               <span>★ {ratingMap[line.id].toFixed(1)}</span>
             )}
@@ -75,7 +75,7 @@ export default function LineCard({
           )}
         </div>
         {line.description && (
-          <p className="text-gray-600 text-sm mt-2">{line.description}</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">{line.description}</p>
         )}
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { apiFetch } from '@/lib/api-fetch';
+import { getAppSessionToken } from '@/lib/app-session-client';
 
 export type AppUser = {
   id: string;
@@ -23,11 +24,12 @@ export function useUser() {
     const loadUser = async () => {
       setLoading(true);
 
+      const appToken = getAppSessionToken();
       const {
         data: { user: authUser },
       } = await supabase.auth.getUser();
 
-      if (!authUser) {
+      if (!authUser && !appToken) {
         setUser(null);
         setLoading(false);
         return;
@@ -46,13 +48,18 @@ export function useUser() {
         // Fall back to Supabase auth metadata below.
       }
 
-      setUser({
-        id: authUser.id,
-        email: authUser.email ?? '',
-        name: authUser.user_metadata?.name ?? authUser.email?.split('@')[0] ?? null,
-        image: authUser.user_metadata?.avatar_url ?? null,
-        rulesAccepted: Boolean(authUser.user_metadata?.rulesAccepted),
-      });
+      if (authUser) {
+        setUser({
+          id: authUser.id,
+          email: authUser.email ?? '',
+          name: authUser.user_metadata?.name ?? authUser.email?.split('@')[0] ?? null,
+          image: authUser.user_metadata?.avatar_url ?? null,
+          rulesAccepted: Boolean(authUser.user_metadata?.rulesAccepted),
+        });
+      } else {
+        setUser(null);
+      }
+
       setLoading(false);
     };
 
@@ -64,7 +71,16 @@ export function useUser() {
       void loadUser();
     });
 
-    return () => subscription.unsubscribe();
+    const onAppSessionChange = () => {
+      void loadUser();
+    };
+
+    window.addEventListener('iperocks-app-session-change', onAppSessionChange);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('iperocks-app-session-change', onAppSessionChange);
+    };
   }, []);
 
   return { user, loading };

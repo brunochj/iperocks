@@ -4,6 +4,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { getAuthUserFromAuthHeader, resolveDbUser } from '@/lib/server/auth-user';
+import { createAppSessionToken } from '@/lib/server/app-session';
 
 const FULL_GRADE_ORDER = [
   'V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'Projeto',
@@ -14,6 +15,97 @@ const port = Number(process.env.API_PORT ?? 3001);
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+
+async function findUserByIdentifier(identifier: string) {
+  const trimmed = identifier.trim();
+  if (!trimmed) return null;
+
+  if (trimmed.includes('@')) {
+    return prisma.user.findFirst({
+      where: { email: { equals: trimmed, mode: 'insensitive' } },
+    });
+  }
+
+  return prisma.user.findFirst({
+    where: { username: { equals: trimmed, mode: 'insensitive' } },
+  });
+}
+
+app.post('/api/auth/resolve-login', async (req, res) => {
+  const { identifier } = req.body as { identifier?: string };
+  if (!identifier?.trim()) {
+    return res.status(400).json({ error: 'Informe email ou nome de usuário.' });
+  }
+
+  const user = await findUserByIdentifier(identifier);
+  if (!user?.email) {
+    return res.status(404).json({ error: 'Usuário não encontrado.' });
+  }
+
+  return res.json({ email: user.email });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { identifier, password } = req.body as {
+    identifier?: string;
+    password?: string;
+  };
+
+  if (!identifier?.trim() || !password) {
+    return res.status(401).json({ error: 'Credenciais inválidas.' });
+  }
+
+  const dbUser = await findUserByIdentifier(identifier);
+  if (!dbUser?.email || !dbUser.password) {
+    return res.status(401).json({ error: 'Credenciais inválidas.' });
+  }
+
+  const valid = await bcrypt.compare(password, dbUser.password);
+  if (!valid) {
+    return res.status(401).json({ error: 'Credenciais inválidas.' });
+  }
+
+  const access_token = createAppSessionToken({
+    id: dbUser.id,
+    email: dbUser.email,
+  });
+
+  return res.json({
+    authType: 'app',
+    access_token,
+    user: {
+      id: dbUser.id,
+      email: dbUser.email,
+      name: dbUser.name,
+      username: dbUser.username,
+      image: dbUser.image,
+      rulesAccepted: dbUser.rulesAccepted,
+    },
+  });
+});
+
+app.post('/api/auth/legacy-sync', async (req, res) => {
+  const { identifier, password } = req.body as {
+    identifier?: string;
+    password?: string;
+  };
+
+  if (!identifier?.trim() || !password) {
+    return res.status(400).json({ error: 'Credenciais inválidas.' });
+  }
+
+  const user = await findUserByIdentifier(identifier);
+  if (!user?.email || !user.password) {
+    return res.status(401).json({ error: 'Credenciais inválidas.' });
+  }
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    return res.status(401).json({ error: 'Credenciais inválidas.' });
+  }
+
+  return res.json({ email: user.email });
+});
 
 app.get('/api/auth/check', async (req, res) => {
   const user = await getAuthUserFromAuthHeader(req.headers.authorization);
@@ -370,10 +462,32 @@ app.post('/api/user/accepted-rules', async (req, res) => {
   return res.json({ success: true });
 });
 
+app.post('/api/register/check', async (req, res) => {
+  const { email, username } = req.body as { email?: string; username?: string };
+  if (!email || !username) {
+    return res.status(400).json({ error: 'Email e nome de usuário são obrigatórios.' });
+  }
+
+  const existingUser = await prisma.user.findFirst({
+    where: { OR: [{ email }, { username }] },
+  });
+  if (existingUser) {
+    return res.status(400).json({ error: 'Email ou nome de usuário já em uso.' });
+  }
+
+  return res.json({ available: true });
+});
+
 app.post('/api/register', async (req, res) => {
   try {
-    const { name, username, email, password } = req.body;
-    if (!email || !password || !name || !username) {
+    const { name, username, email, password } = req.body as {
+      name?: string;
+      username?: string;
+      email?: string;
+      password?: string;
+    };
+
+    if (!email || !name || !username || !password) {
       return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
     }
 
@@ -393,7 +507,17 @@ app.post('/api/register', async (req, res) => {
       },
     });
 
-    return res.json({ success: true, userId: user.id });
+    const access_token = createAppSessionToken({
+      id: user.id,
+      email: user.email,
+    });
+
+    return res.json({
+      success: true,
+      authType: 'app',
+      access_token,
+      userId: user.id,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Erro interno do servidor.' });

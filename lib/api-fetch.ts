@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
+import { getAppSessionToken } from '@/lib/app-session-client';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '';
 
@@ -11,6 +12,11 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
 
   if (session?.access_token) {
     headers.set('Authorization', `Bearer ${session.access_token}`);
+  } else {
+    const appToken = getAppSessionToken();
+    if (appToken) {
+      headers.set('Authorization', `Bearer ${appToken}`);
+    }
   }
 
   if (init.body && !headers.has('Content-Type')) {

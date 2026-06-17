@@ -1,5 +1,6 @@
 import https from 'node:https';
 import { prisma } from '@/lib/prisma';
+import { verifyAppSessionToken } from '@/lib/server/app-session';
 
 type SupabaseAuthUser = {
   id: string;
@@ -61,6 +62,15 @@ export async function getAuthUserFromAuthHeader(
 ): Promise<SupabaseAuthUser | null> {
   const token = getBearerToken(authHeader);
   if (!token) return null;
+
+  const appSession = verifyAppSessionToken(token);
+  if (appSession) {
+    return {
+      id: appSession.id,
+      email: appSession.email,
+      user_metadata: {},
+    };
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

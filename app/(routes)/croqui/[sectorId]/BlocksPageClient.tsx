@@ -46,17 +46,17 @@ export default function BlocksPageClient({
 
   return (
     <div className="p-4 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Blocos</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Blocos</h1>
       <div className="grid grid-cols-1 gap-4">
         {blocks.map((block: any) => (
           <Link
             key={block.id}
             href={`/croqui/${sectorId}/${block.id}`}
-            className="block bg-white rounded-lg shadow p-4 hover:shadow-md transition"
+            className="block bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900 p-4 hover:shadow-md dark:hover:shadow-gray-900 transition"
           >
-            <h2 className="text-xl font-semibold">{block.name}</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{block.name}</h2>
             {block.description && (
-              <p className="text-gray-600 text-sm mt-1">{block.description}</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{block.description}</p>
             )}
           </Link>
         ))}
