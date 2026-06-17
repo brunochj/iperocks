@@ -1,36 +1,12 @@
-import { withAuth } from "next-auth/middleware"
-import { NextResponse } from "next/server"
+import { type NextRequest } from 'next/server'
+import { updateSession } from '@/lib/supabase/middleware'
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token
-    const path = req.nextUrl.pathname;
-
-    // Se não estiver logado, o withAuth já cuida do redirecionamento para /login
-    if (!token) return NextResponse.next();
-
-    const isOnboarding = req.nextUrl.pathname === "/onboarding"
-    const isCroqui = req.nextUrl.pathname === "/croqui" || req.nextUrl.pathname.startsWith("/croqui")
-    
-    // Se usuário logado e NÃO aceitou regras, redirecionar para onboarding
-    if (!token.rulesAccepted && !isOnboarding) {
-      return NextResponse.redirect(new URL("/onboarding", req.url))
-    }
-    
-    // Se já aceitou e tentar acessar onboarding, redireciona para home
-    if (token.rulesAccepted && isOnboarding) {
-      return NextResponse.redirect(new URL("/home", req.url))
-    }
-    
-    return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token, // exige login em todas as rotas protegidas
-    },
-  }
-)
+export async function middleware(request: NextRequest) {
+  return await updateSession(request)
+}
 
 export const config = {
-  matcher: ["/croqui/:path*", "/onboarding", "/perfil/:path*", "/home"],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }
