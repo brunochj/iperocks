@@ -149,6 +149,7 @@ import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import MyAscentsClient from "./MyAscentsClient";
+import { apiFetch } from "@/lib/api-fetch";
 
 export default function MyAscentsPage() {
   const { user, loading } = useUser();
@@ -168,7 +169,7 @@ export default function MyAscentsPage() {
 
     const loadData = async () => {
       try {
-        const res = await fetch("/api/my-ascents");
+        const res = await apiFetch("/api/my-ascents");
         const data = await res.json();
         setAscents(data.ascents || []);
         setGrades(data.grades || []);

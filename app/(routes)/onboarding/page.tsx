@@ -1,14 +1,15 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/useUser";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiFetch } from "@/lib/api-fetch";
 import ThemeToggle from "../../components/ThemeToggle";
 
 export default function OnboardingPage() {
-  const { data: session, update } = useSession();
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -99,13 +100,8 @@ export default function OnboardingPage() {
   const acceptRules = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/user/accepted-rules", { method: "POST" });
+      const res = await apiFetch("/api/user/accepted-rules", { method: "POST" });
       if (res.ok) {
-        // Update the session
-        await update();
-        // Small delay to ensure session is updated
-        await new Promise(resolve => setTimeout(resolve, 100));
-        // Redirect to home
         window.location.href = "/home";
       } else {
         alert("Erro ao aceitar regras. Tente novamente.");
@@ -134,7 +130,7 @@ export default function OnboardingPage() {
   const slide = slides[currentSlide];
   const isLastSlide = currentSlide === slides.length - 1;
 
-  if (!session) return null;
+  if (userLoading || !user) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative">

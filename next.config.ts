@@ -1,6 +1,6 @@
-import type { NextConfig } from "next";
+// import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   devIndicators: false,
   images: {
     remotePatterns: [
@@ -10,7 +10,9 @@ const nextConfig: NextConfig = {
         pathname: "/dszmb7soi/image/upload/**",
       },
     ],
+    unoptimized: true
   },
+  output: 'export',
 };
 
 export default nextConfig;

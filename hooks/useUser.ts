@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { apiFetch } from '@/lib/api-fetch';
 
 export type AppUser = {
   id: string;
@@ -33,7 +34,7 @@ export function useUser() {
       }
 
       try {
-        const res = await fetch("/api/auth/check");
+        const res = await apiFetch('/api/auth/check');
         const data = await res.json();
 
         if (data.session?.user) {
@@ -47,10 +48,10 @@ export function useUser() {
 
       setUser({
         id: authUser.id,
-        email: authUser.email ?? "",
-        name: authUser.user_metadata?.name ?? authUser.email?.split("@")[0] ?? null,
+        email: authUser.email ?? '',
+        name: authUser.user_metadata?.name ?? authUser.email?.split('@')[0] ?? null,
         image: authUser.user_metadata?.avatar_url ?? null,
-        rulesAccepted: false,
+        rulesAccepted: Boolean(authUser.user_metadata?.rulesAccepted),
       });
       setLoading(false);
     };

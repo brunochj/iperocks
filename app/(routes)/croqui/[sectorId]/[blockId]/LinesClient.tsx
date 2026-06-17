@@ -1,7 +1,29 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useUser } from "@/hooks/useUser";
+import { apiFetch } from "@/lib/api-fetch";
 import ConfirmModal from "@/app/components/ConfirmModal";
+
+type Line = {
+  id: string;
+  name: string;
+  grade: string;
+  description?: string | null;
+  imageUrl?: string | null;
+};
+
+type LinesClientProps = {
+  blockName: string;
+  blockDescription: string;
+  lines: Line[];
+  ascendedIds: Set<string>;
+  grades: string[];
+  alertsByLine: Record<string, string[]>;
+  ratingMap?: Record<string, number>;
+  gradeSuggestionMap?: Record<string, string>;
+  expandLineId?: string | null;
+  userAscents?: Array<{ lineId: string; rating?: number | null; gradeSuggestion?: string | null }>;
+};
 
 export default function LinesClient({
   blockName,
@@ -13,11 +35,11 @@ export default function LinesClient({
   ratingMap = {},
   gradeSuggestionMap = {},
   expandLineId = null,
-  userAscents = [], // nova prop
-}) {
+  userAscents = [],
+}: LinesClientProps) {
 
   console.log("userAscents recebido:", userAscents); // no início do componente
-  const { data: session } = useSession();
+  const { user } = useUser();
   const [expandedLineId, setExpandedLineId] = useState<string | null>(expandLineId);
   const [filterGrade, setFilterGrade] = useState("");
   const [sortBy, setSortBy] = useState<"grade-asc" | "grade-desc" | "name-asc">("grade-asc");
@@ -74,9 +96,9 @@ export default function LinesClient({
   }, [lines, filterGrade, sortBy]);
 
   const handleAscent = async (lineId: string) => {
-    if (!session) return;
+    if (!user) return;
     setLoading((prev) => ({ ...prev, [lineId]: true }));
-    const res = await fetch("/api/ascent", {
+    const res = await apiFetch("/api/ascent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lineId }),
@@ -98,7 +120,7 @@ export default function LinesClient({
     }
     setRatingError((prev) => ({ ...prev, [lineId]: "" }));
     const gradeSuggestion = tempGradeSuggestion[lineId] || null;
-    const res = await fetch("/api/ascent/review", {
+    const res = await apiFetch("/api/ascent/review", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lineId, rating, gradeSuggestion }),
@@ -119,7 +141,7 @@ export default function LinesClient({
   const confirmRemove = async () => {
     const lineId = modalState.lineId!;
     setLoading((prev) => ({ ...prev, [lineId]: true }));
-    const res = await fetch(`/api/ascent?lineId=${lineId}`, { method: "DELETE" });
+    const res = await apiFetch(`/api/ascent?lineId=${lineId}`, { method: "DELETE" });
     if (res.ok) {
       setAscending((prev) => ({ ...prev, [lineId]: false }));
       window.location.reload();
@@ -186,7 +208,7 @@ export default function LinesClient({
               onClick={() => toggleExpand(line.id)}
             >
               <div className="flex items-start gap-4">
-                {hasImage && <img src={line.imageUrl} alt={line.name} className="w-16 h-16 object-cover rounded" />}
+                {hasImage && <img src={line.imageUrl ?? undefined} alt={line.name} className="w-16 h-16 object-cover rounded" />}
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center">
@@ -226,7 +248,7 @@ export default function LinesClient({
 
               {isExpanded && (
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  {hasImage && <div className="mb-4"><img src={line.imageUrl} alt={line.name} className="w-full max-h-96 object-contain rounded-lg" /></div>}
+                  {hasImage && <div className="mb-4"><img src={line.imageUrl ?? undefined} alt={line.name} className="w-full max-h-96 object-contain rounded-lg" /></div>}
                   <div className="prose prose-sm max-w-none">
                     <h4 className="font-semibold text-gray-800 dark:text-gray-200">Descrição</h4>
                     <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{line.description || "Nenhuma descrição fornecida."}</p>

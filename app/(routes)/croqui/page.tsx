@@ -36,6 +36,7 @@ import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getSectors } from "@/lib/data/croqui";
 
 export default function CroquiPage() {
   const { user, loading } = useUser();
@@ -51,9 +52,7 @@ export default function CroquiPage() {
     if (!user) return;
     const loadData = async () => {
       try {
-        const res = await fetch("/api/sectors");
-        const data = await res.json();
-        setSectors(data.sectors || []);
+        setSectors(getSectors());
       } catch (error) {
         console.error("Erro ao carregar setores:", error);
       } finally {

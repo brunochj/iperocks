@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { signIn } from "next-auth/react";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -36,15 +36,21 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const result = await signIn("credentials", {
-      identifier,
+    const supabase = createClient();
+    const email = identifier.includes("@") ? identifier : null;
+
+    if (!email) {
+      setError("Use seu email para entrar com senha.");
+      setLoading(false);
+      return;
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
       password,
-      rememberMe: String(rememberMe),
-      redirect: false,
-      callbackUrl,
     });
 
-    if (result?.error) {
+    if (signInError) {
       setError("Credenciais inválidas. Tente novamente.");
       setLoading(false);
     } else {
@@ -164,9 +170,19 @@ export default function LoginPage() {
             <button
               type="button"
               disabled={loading || googleLoading}
-              onClick={() => {
+              onClick={async () => {
                 setGoogleLoading(true);
-                signIn("google", { callbackUrl });
+                const supabase = createClient();
+                const { error } = await supabase.auth.signInWithOAuth({
+                  provider: "google",
+                  options: {
+                    redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(callbackUrl)}`,
+                  },
+                });
+                if (error) {
+                  setError("Erro ao entrar com Google.");
+                  setGoogleLoading(false);
+                }
               }}
               className="mt-4 w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition disabled:opacity-50"
             >

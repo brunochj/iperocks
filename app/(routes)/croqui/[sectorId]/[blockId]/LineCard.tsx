@@ -1,13 +1,32 @@
 "use client";
 import { useState } from "react";
+import { apiFetch } from "@/lib/api-fetch";
 
-export default function LineCard({ line, isAscended: initialAscended }) {
+type LineCardProps = {
+  line: {
+    id: string;
+    name: string;
+    grade: string;
+    description?: string | null;
+    imageUrl?: string | null;
+  };
+  isAscended: boolean;
+  ratingMap?: Record<string, number>;
+  gradeSuggestionMap?: Record<string, string>;
+};
+
+export default function LineCard({
+  line,
+  isAscended: initialAscended,
+  ratingMap = {},
+  gradeSuggestionMap = {},
+}: LineCardProps) {
   const [ascended, setAscended] = useState(initialAscended);
   const [loading, setLoading] = useState(false);
 
   const handleAscent = async () => {
     setLoading(true);
-    const res = await fetch("/api/ascent", {
+    const res = await apiFetch("/api/ascent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lineId: line.id }),

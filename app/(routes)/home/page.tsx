@@ -202,6 +202,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import GradeChart from "@/app/components/GradeChart";
 import CollapsibleCard from "@/app/components/CollapsibleCard";
+import { apiFetch } from "@/lib/api-fetch";
 
 export default function HomePage() {
   const { user, loading } = useUser();
@@ -224,7 +225,7 @@ export default function HomePage() {
 
     const loadData = async () => {
       try {
-        const res = await fetch("/api/home");
+        const res = await apiFetch("/api/home");
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }

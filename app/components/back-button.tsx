@@ -1,33 +1,32 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useUser } from '@/hooks/useUser';
 
-const HIDDEN_PATHS = new Set(["/login", "/home", "/"]);
-
-const AUTH_PATHS = new Set(["/login", "/register", "/onboarding"]);
+const HIDDEN_PATHS = new Set(['/login', '/home', '/']);
+const AUTH_PATHS = new Set(['/login', '/register', '/onboarding']);
 
 function getBackHref(pathname: string): string {
-  if (pathname === "/register") return "/login";
-  if (pathname === "/onboarding") return "/login";
-  if (pathname === "/croqui") return "/home";
-  if (pathname === "/ranking") return "/home";
+  if (pathname === '/register') return '/login';
+  if (pathname === '/onboarding') return '/login';
+  if (pathname === '/croqui') return '/home';
+  if (pathname === '/ranking') return '/home';
 
-  const parts = pathname.split("/").filter(Boolean);
+  const parts = pathname.split('/').filter(Boolean);
 
-  if (parts[0] === "croqui" && parts.length === 3) {
+  if (parts[0] === 'croqui' && parts.length === 3) {
     return `/croqui/${parts[1]}`;
   }
-  if (parts[0] === "croqui" && parts.length === 2) {
-    return "/croqui";
+  if (parts[0] === 'croqui' && parts.length === 2) {
+    return '/croqui';
   }
 
   if (parts.length > 1) {
-    return `/${parts.slice(0, -1).join("/")}`;
+    return `/${parts.slice(0, -1).join('/')}`;
   }
 
-  return "/home";
+  return '/home';
 }
 
 function BackLink({ href, className }: { href: string; className: string }) {
@@ -52,14 +51,15 @@ function BackLink({ href, className }: { href: string; className: string }) {
 
 export default function BackButton() {
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { user, loading } = useUser();
 
   if (HIDDEN_PATHS.has(pathname)) return null;
 
   const href = getBackHref(pathname);
   const hasNavbar =
-    status === "authenticated" &&
-    session?.user?.rulesAccepted &&
+    !loading &&
+    !!user &&
+    user.rulesAccepted &&
     !AUTH_PATHS.has(pathname);
 
   if (hasNavbar) {

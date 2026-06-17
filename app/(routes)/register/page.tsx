@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ThemeToggle from "../../components/ThemeToggle";
+import { apiFetch } from "@/lib/api-fetch";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -50,7 +51,7 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/register", {
+      const res = await apiFetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

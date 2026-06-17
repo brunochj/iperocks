@@ -10,7 +10,7 @@ export async function initDatabase() {
 
   const sqlite = new SQLiteConnection(Capacitor);
   try {
-    db = await sqlite.createConnection('iperocks', false, 'no-encryption', 1);
+    db = await sqlite.createConnection('iperocks', false, 'no-encryption', 1, false);
     await db.open();
 
     // Criar tabelas se não existirem
