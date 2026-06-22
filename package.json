@@ -2,12 +2,18 @@
   "name": "iperocks",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "api": "tsx server/index.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "ios:run": "npx cap run ios --target 4C5C820D-3179-4C78-AE63-DCEC4682432D"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

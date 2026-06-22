@@ -70,6 +70,17 @@ export default function LoginPage() {
         });
 
         if (sessionError) {
+          console.error('[login] setSession failed:', sessionError);
+          setError("Não foi possível iniciar a sessão. Tente novamente.");
+          return;
+        }
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+          console.error('[login] session missing after setSession');
           setError("Não foi possível iniciar a sessão. Tente novamente.");
           return;
         }
@@ -86,7 +97,8 @@ export default function LoginPage() {
         localStorage.removeItem(REMEMBER_ME_KEY);
       }
 
-      router.push(data.user?.rulesAccepted ? callbackUrl : "/onboarding");
+      const destination = data.user?.rulesAccepted ? callbackUrl : "/onboarding";
+      window.location.href = destination;
     } catch {
       setError("Credenciais inválidas. Tente novamente.");
     } finally {
@@ -132,6 +144,9 @@ export default function LoginPage() {
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/50"
                 required
               />
@@ -145,6 +160,8 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoCapitalize="none"
+                autoCorrect="off"
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/50"
                 required
               />

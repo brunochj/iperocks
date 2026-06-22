@@ -86,7 +86,7 @@ export default function RegisterPage() {
           throw new Error("Não foi possível iniciar a sessão. Tente fazer login.");
         }
 
-        router.push("/onboarding");
+        window.location.href = "/onboarding";
       } else {
         router.push("/login?registered=true");
       }
@@ -149,6 +149,9 @@ export default function RegisterPage() {
                 type="text"
                 value={form.username}
                 onChange={handleChange}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white/50"
                 required
               />
@@ -162,6 +165,9 @@ export default function RegisterPage() {
                 type="email"
                 value={form.email}
                 onChange={handleChange}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white/50"
                 required
               />
@@ -176,6 +182,8 @@ export default function RegisterPage() {
                 value={form.password}
                 onChange={handleChange}
                 onBlur={() => setPasswordTouched(true)}
+                autoCapitalize="none"
+                autoCorrect="off"
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white/50"
                 required
               />
@@ -190,6 +198,8 @@ export default function RegisterPage() {
                 value={form.confirmPassword}
                 onChange={handleChange}
                 onBlur={() => setConfirmTouched(true)}
+                autoCapitalize="none"
+                autoCorrect="off"
                 className={`mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white/50 ${
                   confirmTouched && !doPasswordsMatch && form.confirmPassword !== ""
                     ? "border-red-500"
