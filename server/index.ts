@@ -211,6 +211,51 @@ app.get('/api/auth/check', async (req, res) => {
   });
 });
 
+app.post('/api/auth/oauth-sync', async (req, res) => {
+  const user = await getAuthUserFromAuthHeader(req.headers.authorization);
+  if (!user?.email) {
+    return res.status(401).json({ error: 'Não autorizado' });
+  }
+
+  const existingUser = await resolveDbUser(user);
+  if (existingUser) {
+    return res.json({
+      user: {
+        id: existingUser.id,
+        email: existingUser.email,
+        name: existingUser.name,
+        username: existingUser.username,
+        image:
+          existingUser.image ?? metadataString(user.user_metadata, 'avatar_url'),
+        rulesAccepted: existingUser.rulesAccepted,
+      },
+    });
+  }
+
+  const created = await prisma.user.create({
+    data: {
+      id: user.id,
+      email: user.email,
+      name:
+        metadataString(user.user_metadata, 'name') ??
+        metadataString(user.user_metadata, 'full_name'),
+      image:
+        metadataString(user.user_metadata, 'avatar_url') ??
+        metadataString(user.user_metadata, 'picture'),
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      username: true,
+      image: true,
+      rulesAccepted: true,
+    },
+  });
+
+  return res.json({ user: created });
+});
+
 app.get('/api/home', async (req, res) => {
   const user = await getAuthUserFromAuthHeader(req.headers.authorization);
   if (!user?.email) return res.status(401).json({ error: 'Não autorizado' });

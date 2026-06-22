@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { apiFetch } from "@/lib/api-fetch";
+import { signInWithGoogle } from "@/lib/auth/oauth";
 import { setAppSessionToken } from "@/lib/app-session-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -219,14 +220,10 @@ export default function LoginPage() {
               disabled={loading || googleLoading}
               onClick={async () => {
                 setGoogleLoading(true);
-                const supabase = createClient();
-                const { error } = await supabase.auth.signInWithOAuth({
-                  provider: "google",
-                  options: {
-                    redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(callbackUrl)}`,
-                  },
-                });
-                if (error) {
+                setError("");
+                try {
+                  await signInWithGoogle(callbackUrl);
+                } catch {
                   setError("Erro ao entrar com Google.");
                   setGoogleLoading(false);
                 }
