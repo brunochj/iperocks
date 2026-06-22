@@ -178,6 +178,24 @@ export async function signInWithPassword(email: string, password: string) {
   return data;
 }
 
+type AdminUser = {
+  id: string;
+  identities?: Array<{ provider: string }>;
+};
+
+export async function getSupabaseAdminUser(userId: string): Promise<AdminUser | null> {
+  const { serviceRoleKey } = getSupabaseConfig();
+  if (!serviceRoleKey) return null;
+
+  const { status, data } = await requestJson<AdminUser>(
+    `/auth/v1/admin/users/${userId}`,
+    { apiKey: serviceRoleKey }
+  );
+
+  if (status >= 400 || !data?.id) return null;
+  return data;
+}
+
 export function hasServiceRoleKey() {
   return Boolean(getSupabaseConfig().serviceRoleKey);
 }

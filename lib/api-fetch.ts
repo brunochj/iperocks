@@ -4,19 +4,28 @@ import { getAppSessionToken } from '@/lib/app-session-client';
 const EXPRESS_API_BASE =
   process.env.NEXT_PUBLIC_EXPRESS_API_URL ?? 'http://localhost:3001';
 
-/** Routes implemented as Next.js API handlers (dev); everything else uses Express. */
+/** Routes with Next.js handlers — only used during `next dev` on port 3000. */
 const NEXT_API_PATHS = [
   '/api/auth/login',
   '/api/register',
   '/api/user/accepted-rules',
 ];
 
+function isNextDevServer(): boolean {
+  if (typeof window === 'undefined') return false;
+  return (
+    window.location.hostname === 'localhost' &&
+    window.location.port === '3000' &&
+    window.location.protocol === 'http:'
+  );
+}
+
 function resolveApiBase(path: string): string {
-  if (NEXT_API_PATHS.some((prefix) => path.startsWith(prefix))) {
-    if (typeof window !== 'undefined') {
-      return window.location.origin;
-    }
-    return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+  if (
+    isNextDevServer() &&
+    NEXT_API_PATHS.some((prefix) => path.startsWith(prefix))
+  ) {
+    return window.location.origin;
   }
   return EXPRESS_API_BASE;
 }

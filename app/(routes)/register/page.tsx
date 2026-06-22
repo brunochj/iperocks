@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ThemeToggle from "../../components/ThemeToggle";
 import { apiFetch } from "@/lib/api-fetch";
-import { setAppSessionToken } from "@/lib/app-session-client";
+import { createClient } from "@/lib/supabase/client";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -75,9 +75,17 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      if (data.authType === "app" && data.access_token) {
-        setAppSessionToken(data.access_token);
-        window.dispatchEvent(new Event("iperocks-app-session-change"));
+      if (data.access_token && data.refresh_token) {
+        const supabase = createClient();
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+
+        if (sessionError) {
+          throw new Error("Não foi possível iniciar a sessão. Tente fazer login.");
+        }
+
         router.push("/onboarding");
       } else {
         router.push("/login?registered=true");

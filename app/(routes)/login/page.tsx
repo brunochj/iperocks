@@ -49,7 +49,13 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Credenciais inválidas. Tente novamente.");
+        if (data.code === 'GOOGLE_ONLY') {
+          setError(
+            'Esta conta foi criada com Google. Use o botão "Continuar com Google".'
+          );
+        } else {
+          setError(data.error ?? 'Credenciais inválidas. Tente novamente.');
+        }
         return;
       }
 
@@ -158,6 +164,7 @@ export default function LoginPage() {
               </label>
               <Link
                 href="/forgot-password"
+                prefetch={false}
                 className="text-sm text-indigo-600 hover:text-indigo-500"
               >
                 Esqueceu a senha?

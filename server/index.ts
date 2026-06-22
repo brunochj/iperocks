@@ -4,7 +4,14 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { getAuthUserFromAuthHeader, resolveDbUser } from '@/lib/server/auth-user';
-import { createAppSessionToken } from '@/lib/server/app-session';
+import {
+  createConfirmedSupabaseUser,
+  ensureSupabasePasswordUser,
+  findSupabaseUserByEmail,
+  getSupabaseAdminUser,
+  hasServiceRoleKey,
+  signInWithPassword,
+} from '@/lib/server/supabase-admin';
 
 const FULL_GRADE_ORDER = [
   'V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'Projeto',
@@ -15,6 +22,30 @@ const port = Number(process.env.API_PORT ?? 3001);
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+
+function metadataString(
+  metadata: Record<string, unknown> | undefined,
+  key: string
+): string | null {
+  const value = metadata?.[key];
+  return typeof value === 'string' ? value : null;
+}
+
+async function syncPrismaUserIdToSupabase(oldId: string, supabaseId: string) {
+  if (oldId === supabaseId) return supabaseId;
+
+  await prisma.$transaction([
+    prisma.ascent.updateMany({ where: { userId: oldId }, data: { userId: supabaseId } }),
+    prisma.review.updateMany({ where: { userId: oldId }, data: { userId: supabaseId } }),
+    prisma.alert.updateMany({ where: { userId: oldId }, data: { userId: supabaseId } }),
+    prisma.user.update({
+      where: { id: oldId },
+      data: { id: supabaseId, password: null },
+    }),
+  ]);
+
+  return supabaseId;
+}
 
 async function findUserByIdentifier(identifier: string) {
   const trimmed = identifier.trim();
@@ -46,42 +77,88 @@ app.post('/api/auth/resolve-login', async (req, res) => {
 });
 
 app.post('/api/auth/login', async (req, res) => {
-  const { identifier, password } = req.body as {
-    identifier?: string;
-    password?: string;
-  };
+  try {
+    const { identifier, password } = req.body as {
+      identifier?: string;
+      password?: string;
+    };
 
-  if (!identifier?.trim() || !password) {
-    return res.status(401).json({ error: 'Credenciais inválidas.' });
+    if (!identifier?.trim() || !password) {
+      return res.status(400).json({ error: 'Email/username e senha são obrigatórios' });
+    }
+
+    const dbUser = await findUserByIdentifier(identifier);
+    if (!dbUser?.email) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    let session = await signInWithPassword(dbUser.email, password);
+    if (session) {
+      return res.json({
+        success: true,
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+        user: {
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.name,
+          username: dbUser.username,
+          image: dbUser.image,
+          rulesAccepted: dbUser.rulesAccepted,
+        },
+      });
+    }
+
+    if (hasServiceRoleKey()) {
+      const supabaseUser = await findSupabaseUserByEmail(dbUser.email);
+      if (supabaseUser) {
+        const authUser = await getSupabaseAdminUser(supabaseUser.id);
+        const hasGoogleIdentity = authUser?.identities?.some(
+          (identity) => identity.provider === 'google'
+        );
+        if (hasGoogleIdentity) {
+          return res.status(401).json({
+            error: 'Conta criada com Google. Faça login com o botão "Continuar com Google".',
+            code: 'GOOGLE_ONLY',
+          });
+        }
+      }
+    }
+
+    if (dbUser.password) {
+      const valid = await bcrypt.compare(password, dbUser.password);
+      if (valid) {
+        const supabaseId = await ensureSupabasePasswordUser(dbUser.email, password, {
+          name: dbUser.name,
+          username: dbUser.username,
+        });
+        const userId = await syncPrismaUserIdToSupabase(dbUser.id, supabaseId);
+        const updatedUser = await prisma.user.findUnique({ where: { id: userId } });
+
+        session = await signInWithPassword(dbUser.email, password);
+        if (session && updatedUser) {
+          return res.json({
+            success: true,
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+            user: {
+              id: updatedUser.id,
+              email: updatedUser.email,
+              name: updatedUser.name,
+              username: updatedUser.username,
+              image: updatedUser.image,
+              rulesAccepted: updatedUser.rulesAccepted,
+            },
+          });
+        }
+      }
+    }
+
+    return res.status(401).json({ error: 'Credenciais inválidas' });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
   }
-
-  const dbUser = await findUserByIdentifier(identifier);
-  if (!dbUser?.email || !dbUser.password) {
-    return res.status(401).json({ error: 'Credenciais inválidas.' });
-  }
-
-  const valid = await bcrypt.compare(password, dbUser.password);
-  if (!valid) {
-    return res.status(401).json({ error: 'Credenciais inválidas.' });
-  }
-
-  const access_token = createAppSessionToken({
-    id: dbUser.id,
-    email: dbUser.email,
-  });
-
-  return res.json({
-    authType: 'app',
-    access_token,
-    user: {
-      id: dbUser.id,
-      email: dbUser.email,
-      name: dbUser.name,
-      username: dbUser.username,
-      image: dbUser.image,
-      rulesAccepted: dbUser.rulesAccepted,
-    },
-  });
 });
 
 app.post('/api/auth/legacy-sync', async (req, res) => {
@@ -121,11 +198,12 @@ app.get('/api/auth/check', async (req, res) => {
         email: user.email,
         name:
           dbUser?.name ??
-          user.user_metadata?.name ??
+          metadataString(user.user_metadata, 'name') ??
           user.email?.split('@')[0] ??
           null,
         username: dbUser?.username ?? null,
-        image: dbUser?.image ?? user.user_metadata?.avatar_url ?? null,
+        image:
+          dbUser?.image ?? metadataString(user.user_metadata, 'avatar_url'),
         rulesAccepted: dbUser?.rulesAccepted ?? false,
       },
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -452,8 +530,12 @@ app.post('/api/user/accepted-rules', async (req, res) => {
       data: {
         id: user.id,
         email: user.email,
-        name: user.user_metadata?.name ?? user.user_metadata?.full_name ?? null,
-        image: user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null,
+        name:
+          metadataString(user.user_metadata, 'name') ??
+          metadataString(user.user_metadata, 'full_name'),
+        image:
+          metadataString(user.user_metadata, 'avatar_url') ??
+          metadataString(user.user_metadata, 'picture'),
         ...rulesData,
       },
     });
@@ -498,25 +580,40 @@ app.post('/api/register', async (req, res) => {
       return res.status(400).json({ error: 'Email ou nome de usuário já em uso.' });
     }
 
+    const supabaseUserId = await createConfirmedSupabaseUser(email, password, {
+      name,
+      username,
+    });
+
     const user = await prisma.user.create({
       data: {
+        id: supabaseUserId,
         name,
         username,
         email,
-        password: await bcrypt.hash(password, 10),
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        rulesAccepted: true,
+        image: true,
       },
     });
 
-    const access_token = createAppSessionToken({
-      id: user.id,
-      email: user.email,
-    });
+    const session = await signInWithPassword(email, password);
+    if (!session) {
+      return res.status(500).json({
+        error: 'Conta criada, mas não foi possível iniciar a sessão.',
+      });
+    }
 
     return res.json({
       success: true,
-      authType: 'app',
-      access_token,
-      userId: user.id,
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      user,
     });
   } catch (error) {
     console.error(error);
