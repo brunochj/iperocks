@@ -1,8 +1,16 @@
+import { Capacitor } from '@capacitor/core';
 import { createClient } from '@/lib/supabase/client';
 import { getAppSessionToken } from '@/lib/app-session-client';
 
-const EXPRESS_API_BASE =
-  process.env.NEXT_PUBLIC_EXPRESS_API_URL ?? 'http://localhost:3001';
+/** Android emulator cannot reach the host via localhost — use 10.0.2.2 instead. */
+function getExpressApiBase(): string {
+  if (typeof window !== 'undefined' && Capacitor.getPlatform() === 'android') {
+    return (
+      process.env.NEXT_PUBLIC_EXPRESS_API_URL_ANDROID ?? 'http://10.0.2.2:3001'
+    );
+  }
+  return process.env.NEXT_PUBLIC_EXPRESS_API_URL ?? 'http://localhost:3001';
+}
 
 /** Routes with Next.js handlers — only used during `next dev` on port 3000. */
 const NEXT_API_PATHS = [
@@ -27,7 +35,7 @@ function resolveApiBase(path: string): string {
   ) {
     return window.location.origin;
   }
-  return EXPRESS_API_BASE;
+  return getExpressApiBase();
 }
 
 export async function apiFetch(path: string, init: RequestInit = {}) {
