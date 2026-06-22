@@ -1,7 +1,25 @@
 import { createClient } from '@/lib/supabase/client';
 import { getAppSessionToken } from '@/lib/app-session-client';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '';
+const EXPRESS_API_BASE =
+  process.env.NEXT_PUBLIC_EXPRESS_API_URL ?? 'http://localhost:3001';
+
+/** Routes implemented as Next.js API handlers (dev); everything else uses Express. */
+const NEXT_API_PATHS = [
+  '/api/auth/login',
+  '/api/register',
+  '/api/user/accepted-rules',
+];
+
+function resolveApiBase(path: string): string {
+  if (NEXT_API_PATHS.some((prefix) => path.startsWith(prefix))) {
+    if (typeof window !== 'undefined') {
+      return window.location.origin;
+    }
+    return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+  }
+  return EXPRESS_API_BASE;
+}
 
 export async function apiFetch(path: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers);
@@ -23,7 +41,7 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
     headers.set('Content-Type', 'application/json');
   }
 
-  return fetch(`${API_BASE}${path}`, {
+  return fetch(`${resolveApiBase(path)}${path}`, {
     ...init,
     headers,
     credentials: 'include',
