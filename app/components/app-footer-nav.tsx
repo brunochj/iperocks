@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import AppLink from "./AppLink";
 
 const NAV_ITEMS = [
   { href: "/home", label: "Home", icon: "🏠" },
@@ -10,7 +10,7 @@ const NAV_ITEMS = [
 ] as const;
 
 function isNavActive(pathname: string, href: string) {
-  if (href === "/home") return pathname === "/home";
+  if (href === "/home") return pathname === "/home" || pathname === "/home/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -26,7 +26,7 @@ export default function AppFooterNav() {
         {NAV_ITEMS.map(({ href, label, icon }) => {
           const active = isNavActive(pathname, href);
           return (
-            <Link
+            <AppLink
               key={href}
               href={href}
               className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-2 py-1 text-xs font-medium transition sm:text-sm ${
@@ -39,7 +39,7 @@ export default function AppFooterNav() {
                 {icon}
               </span>
               <span>{label}</span>
-            </Link>
+            </AppLink>
           );
         })}
       </div>

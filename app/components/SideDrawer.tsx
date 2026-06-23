@@ -1,7 +1,8 @@
 // components/SideDrawer.tsx
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { signOut } from "next-auth/react";
+import { createClient } from '@/lib/supabase/client';
+import { clearAppSessionToken } from '@/lib/app-session-client';
 import Link from "next/link";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 
@@ -113,7 +114,13 @@ export default function SideDrawer({ userName, isOpen, onClose }: SideDrawerProp
           </li>
           <li>
             <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
+              onClick={async () => {
+                const supabase = createClient();
+                await supabase.auth.signOut();
+                clearAppSessionToken();
+                window.dispatchEvent(new Event('iperocks-app-session-change'));
+                window.location.href = '/login';
+              }}
               className="block w-full text-left py-2 px-3 rounded text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               Sair

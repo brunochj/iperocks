@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Loader from "@/app/components/Loader";
+import { apiFetch } from "@/lib/api-fetch";
 
 type SearchResult = {
   type: "sector" | "block" | "line";
@@ -46,7 +47,7 @@ export default function SearchBar() {
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+        const res = await apiFetch(`/api/search?q=${encodeURIComponent(query)}`);
         const data = await res.json();
         setResults(data.results);
         setIsOpen(true);

@@ -1,12 +1,14 @@
 "use client";
-import { useSession } from "next-auth/react";
+
+import { useUser } from "@/hooks/useUser";
 
 export default function TestPage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useUser();
+
   return (
     <div>
-      <pre>Status: {status}</pre>
-      <pre>Session: {JSON.stringify(session, null, 2)}</pre>
+      <pre>Loading: {String(loading)}</pre>
+      <pre>User: {JSON.stringify(user, null, 2)}</pre>
     </div>
   );
 }

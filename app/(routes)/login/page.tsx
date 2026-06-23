@@ -1,7 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect, useRef } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { apiFetch } from "@/lib/api-fetch";
+import { signInWithGoogle, redirectAuthenticatedUser } from "@/lib/auth/oauth";
+import { isCurrentPath } from "@/lib/navigate";
+import { setAppSessionToken } from "@/lib/app-session-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,6 +25,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const redirectedRef = useRef(false);
 
   useEffect(() => {
     const savedIdentifier = localStorage.getItem(REMEMBER_IDENTIFIER_KEY);
@@ -31,23 +36,69 @@ export default function LoginPage() {
     }
   }, []);
 
+  useEffect(() => {
+    if (redirectedRef.current) return;
+    if (!isCurrentPath('/login')) return;
+    redirectedRef.current = true;
+    void redirectAuthenticatedUser(callbackUrl);
+  }, [callbackUrl]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const result = await signIn("credentials", {
-      identifier,
-      password,
-      rememberMe: String(rememberMe),
-      redirect: false,
-      callbackUrl,
-    });
+    try {
+      const res = await apiFetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          identifier: identifier.trim(),
+          password,
+        }),
+      });
+      const data = await res.json();
 
-    if (result?.error) {
-      setError("Credenciais inválidas. Tente novamente.");
-      setLoading(false);
-    } else {
+      if (!res.ok) {
+        if (data.code === 'GOOGLE_ONLY') {
+          setError(
+            'Esta conta foi criada com Google. Use o botão "Continuar com Google".'
+          );
+        } else {
+          setError(data.error ?? 'Credenciais inválidas. Tente novamente.');
+        }
+        return;
+      }
+
+      if (data.authType === "app" && data.access_token) {
+        setAppSessionToken(data.access_token);
+        window.dispatchEvent(new Event("iperocks-app-session-change"));
+      } else if (data.access_token && data.refresh_token) {
+        const supabase = createClient();
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+
+        if (sessionError) {
+          console.error('[login] setSession failed:', sessionError);
+          setError("Não foi possível iniciar a sessão. Tente novamente.");
+          return;
+        }
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+          console.error('[login] session missing after setSession');
+          setError("Não foi possível iniciar a sessão. Tente novamente.");
+          return;
+        }
+      } else {
+        setError("Não foi possível iniciar a sessão. Tente novamente.");
+        return;
+      }
+
       if (rememberMe) {
         localStorage.setItem(REMEMBER_IDENTIFIER_KEY, identifier);
         localStorage.setItem(REMEMBER_ME_KEY, "true");
@@ -55,7 +106,13 @@ export default function LoginPage() {
         localStorage.removeItem(REMEMBER_IDENTIFIER_KEY);
         localStorage.removeItem(REMEMBER_ME_KEY);
       }
-      router.push(callbackUrl);
+
+      const destination = data.user?.rulesAccepted ? callbackUrl : "/onboarding";
+      window.location.href = destination;
+    } catch {
+      setError("Credenciais inválidas. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,6 +154,9 @@ export default function LoginPage() {
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/50"
                 required
               />
@@ -110,6 +170,8 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoCapitalize="none"
+                autoCorrect="off"
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/50"
                 required
               />
@@ -129,6 +191,7 @@ export default function LoginPage() {
               </label>
               <Link
                 href="/forgot-password"
+                prefetch={false}
                 className="text-sm text-indigo-600 hover:text-indigo-500"
               >
                 Esqueceu a senha?
@@ -164,9 +227,15 @@ export default function LoginPage() {
             <button
               type="button"
               disabled={loading || googleLoading}
-              onClick={() => {
+              onClick={async () => {
                 setGoogleLoading(true);
-                signIn("google", { callbackUrl });
+                setError("");
+                try {
+                  await signInWithGoogle(callbackUrl);
+                } catch {
+                  setError("Erro ao entrar com Google.");
+                  setGoogleLoading(false);
+                }
               }}
               className="mt-4 w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition disabled:opacity-50"
             >

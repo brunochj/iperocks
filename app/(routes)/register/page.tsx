@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ThemeToggle from "../../components/ThemeToggle";
+import { apiFetch } from "@/lib/api-fetch";
+import { createClient } from "@/lib/supabase/client";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -50,7 +52,17 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/register", {
+      const checkRes = await apiFetch("/api/register/check", {
+        method: "POST",
+        body: JSON.stringify({
+          email: form.email,
+          username: form.username,
+        }),
+      });
+      const checkData = await checkRes.json();
+      if (!checkRes.ok) throw new Error(checkData.error);
+
+      const res = await apiFetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -62,7 +74,22 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      router.push("/login?registered=true");
+
+      if (data.access_token && data.refresh_token) {
+        const supabase = createClient();
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+
+        if (sessionError) {
+          throw new Error("Não foi possível iniciar a sessão. Tente fazer login.");
+        }
+
+        window.location.href = "/onboarding";
+      } else {
+        router.push("/login?registered=true");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -122,6 +149,9 @@ export default function RegisterPage() {
                 type="text"
                 value={form.username}
                 onChange={handleChange}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white/50"
                 required
               />
@@ -135,6 +165,9 @@ export default function RegisterPage() {
                 type="email"
                 value={form.email}
                 onChange={handleChange}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white/50"
                 required
               />
@@ -149,6 +182,8 @@ export default function RegisterPage() {
                 value={form.password}
                 onChange={handleChange}
                 onBlur={() => setPasswordTouched(true)}
+                autoCapitalize="none"
+                autoCorrect="off"
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white/50"
                 required
               />
@@ -163,6 +198,8 @@ export default function RegisterPage() {
                 value={form.confirmPassword}
                 onChange={handleChange}
                 onBlur={() => setConfirmTouched(true)}
+                autoCapitalize="none"
+                autoCorrect="off"
                 className={`mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white/50 ${
                   confirmTouched && !doPasswordsMatch && form.confirmPassword !== ""
                     ? "border-red-500"
