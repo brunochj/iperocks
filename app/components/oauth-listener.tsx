@@ -15,6 +15,7 @@ import {
   clearOAuthFlags,
 } from '@/lib/auth/oauth';
 import { readStoredAuthUser } from '@/lib/supabase/session-fast';
+import { isCurrentPath } from '@/lib/navigate';
 
 export function OAuthListener() {
   const handledUrlRef = useRef<string | null>(null);
@@ -24,18 +25,17 @@ export function OAuthListener() {
 
     clearStaleOAuthFlags();
 
-    const handleExistingSession = (url: string) => {
-      markOAuthHandled();
-      clearOAuthFlags();
-      void redirectAuthenticatedUser(getNextFromUrl(url));
-    };
-
     const handleUrl = async (url: string) => {
       if (!isOAuthCallbackUrl(url)) return;
       if (handledUrlRef.current === url) return;
 
+      // Session already established — only redirect from callback/root, not mid-navigation.
       if (readStoredAuthUser()) {
-        handleExistingSession(url);
+        markOAuthHandled();
+        clearOAuthFlags();
+        if (isCurrentPath('/') || isCurrentPath('/auth/callback')) {
+          void redirectAuthenticatedUser(getNextFromUrl(url));
+        }
         return;
       }
 
@@ -56,7 +56,11 @@ export function OAuthListener() {
       } catch (error) {
         console.error('[oauth] native callback failed:', error);
         if (readStoredAuthUser()) {
-          handleExistingSession(url);
+          markOAuthHandled();
+          clearOAuthFlags();
+          if (isCurrentPath('/') || isCurrentPath('/auth/callback')) {
+            void redirectAuthenticatedUser(getNextFromUrl(url));
+          }
           return;
         }
         const redirected = await redirectAuthenticatedUser(getNextFromUrl(url));
@@ -68,14 +72,8 @@ export function OAuthListener() {
 
     void App.getLaunchUrl().then(async (result) => {
       if (!result?.url || !isOAuthCallbackUrl(result.url)) return;
-
-      if (readStoredAuthUser()) {
-        handleExistingSession(result.url);
-        return;
-      }
-
+      // iOS keeps returning the launch URL on every page load — skip if already handled.
       if (isOAuthHandled()) return;
-
       await handleUrl(result.url);
     });
 

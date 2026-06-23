@@ -376,6 +376,11 @@ export function markOAuthHandled() {
   sessionStorage.setItem(OAUTH_HANDLED_KEY, '1');
 }
 
+export function clearOAuthHandled() {
+  if (typeof window === 'undefined') return;
+  sessionStorage.removeItem(OAUTH_HANDLED_KEY);
+}
+
 export function isOAuthCallbackUrl(url: string) {
   return (
     url.startsWith(`${APP_DEEP_LINK_SCHEME}://`) ||

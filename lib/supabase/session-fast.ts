@@ -57,8 +57,13 @@ export function readStoredAuthUser(): StoredSession['user'] | null {
   return readStoredSupabaseSession()?.user ?? null;
 }
 
-export function hasStoredSession(): boolean {
-  return readStoredSupabaseSession() !== null;
+export function clearStoredSupabaseSession() {
+  if (typeof window === 'undefined') return;
+  const key = supabaseStorageKey();
+  if (!key) return;
+  localStorage.removeItem(key);
+  localStorage.removeItem(`${key}-user`);
+  localStorage.removeItem(`${key}-code-verifier`);
 }
 
 export async function withAsyncTimeout<T>(
