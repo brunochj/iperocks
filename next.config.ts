@@ -2,6 +2,7 @@
 
 const nextConfig = {
   devIndicators: false,
+  trailingSlash: true,
   images: {
     remotePatterns: [
       {

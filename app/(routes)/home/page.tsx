@@ -122,7 +122,7 @@
 //             Nenhuma cadena registrada. Vá ao{" "}
 //             <Link href="/croqui" className="text-indigo-500">
 //               croqui
-//             </Link>{" "}
+//             </AppLink>{" "}
 //             e comece!
 //           </p>
 //         ) : (
@@ -197,16 +197,15 @@
 'use client';
 
 import { useUser } from "@/hooks/useUser";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { navigateTo, isCurrentPath } from "@/lib/navigate";
+import AppLink from "@/app/components/AppLink";
 import GradeChart from "@/app/components/GradeChart";
 import CollapsibleCard from "@/app/components/CollapsibleCard";
 import { apiFetch } from "@/lib/api-fetch";
 
 export default function HomePage() {
   const { user, loading } = useUser();
-  const router = useRouter();
   const [chartData, setChartData] = useState<any[]>([]);
   const [top5, setTop5] = useState<any[]>([]);
   const [userRankPosition, setUserRankPosition] = useState<number | null>(null);
@@ -216,24 +215,38 @@ export default function HomePage() {
 
   useEffect(() => {
     if (loading) return;
+
     if (!user) {
-      router.push("/login");
-    } else if (!user.rulesAccepted) {
-      router.push("/onboarding");
+      const timeout = window.setTimeout(() => {
+        if (!isCurrentPath('/login')) {
+          navigateTo("/login");
+        }
+      }, 600);
+      return () => window.clearTimeout(timeout);
     }
-  }, [user, loading, router]);
+
+    if (!user.rulesAccepted && !isCurrentPath('/onboarding')) {
+      navigateTo("/onboarding");
+    }
+  }, [user, loading]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.rulesAccepted) return;
+
+    let cancelled = false;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 15000);
 
     const loadData = async () => {
       try {
-        const res = await apiFetch("/api/home");
+        const res = await apiFetch("/api/home", { signal: controller.signal });
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
 
         const data = await res.json();
+        if (cancelled) return;
+
         setChartData(data.chartData ?? []);
         setTop5(data.top5 ?? []);
         setUserRankPosition(data.userRankPosition ?? null);
@@ -242,17 +255,31 @@ export default function HomePage() {
       } catch (error) {
         console.error("Erro ao carregar dados da home:", error);
       } finally {
+        window.clearTimeout(timeout);
         setDataReady(true);
       }
     };
 
     void loadData();
-  }, [user]);
 
-  if (loading || !dataReady) {
+    return () => {
+      cancelled = true;
+      controller.abort();
+      window.clearTimeout(timeout);
+    };
+  }, [user?.id, user?.rulesAccepted]);
+
+  if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   }
-  if (!user || !user.rulesAccepted) return null;
+
+  if (!user || !user.rulesAccepted) {
+    return null;
+  }
+
+  if (!dataReady) {
+    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-4 pb-20">
@@ -260,9 +287,9 @@ export default function HomePage() {
         {chartData.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
             Nenhuma cadena registrada. Vá ao{" "}
-            <Link href="/croqui" className="text-indigo-500">
+            <AppLink href="/croqui" className="text-indigo-500">
               croqui
-            </Link>{" "}
+            </AppLink>{" "}
             e comece!
           </p>
         ) : (
@@ -271,9 +298,9 @@ export default function HomePage() {
       </CollapsibleCard>
 
       <CollapsibleCard title="Ranking Geral" defaultExpanded={false}>
-        <Link href="/ranking" className="text-sm text-gray-500 dark:text-gray-400 pb-4 block">
+        <AppLink href="/ranking" className="text-sm text-gray-500 dark:text-gray-400 pb-4 block">
           Ver Ranking Geral
-        </Link>
+        </AppLink>
         <div className="space-y-2">
           {top5.length === 0 ? (
             <p className="text-sm text-gray-500">Ranking disponível online.</p>
@@ -306,9 +333,9 @@ export default function HomePage() {
       </CollapsibleCard>
 
       <CollapsibleCard title="Últimas cadenas" defaultExpanded={false}>
-        <Link href="/my-ascents" className="text-sm text-gray-500 dark:text-gray-400 pb-4 block">
+        <AppLink href="/my-ascents" className="text-sm text-gray-500 dark:text-gray-400 pb-4 block">
           Ver todas as cadenas
-        </Link>
+        </AppLink>
         {lastAscents.length === 0 ? (
           <p className="text-gray-500 text-sm">Nenhum boulder mandado ainda.</p>
         ) : (

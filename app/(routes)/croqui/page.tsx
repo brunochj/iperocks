@@ -33,20 +33,21 @@
 'use client';
 
 import { useUser } from "@/hooks/useUser";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import AppLink from "@/app/components/AppLink";
+import { navigateTo } from "@/lib/navigate";
 import { getSectors } from "@/lib/data/croqui";
 
 export default function CroquiPage() {
   const { user, loading } = useUser();
-  const router = useRouter();
   const [sectors, setSectors] = useState<any[]>([]);
   const [dataReady, setDataReady] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) router.push("/login");
-  }, [user, loading, router]);
+    if (!loading && !user) {
+      navigateTo("/login");
+    }
+  }, [user, loading]);
 
   useEffect(() => {
     if (!user) return;
@@ -70,7 +71,7 @@ export default function CroquiPage() {
       <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Setores</h1>
       <div className="grid grid-cols-1 gap-4">
         {sectors.map((sector: any) => (
-          <Link
+          <AppLink
             key={sector.id}
             href={`/croqui/${sector.id}`}
             className="block bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900 p-4 hover:shadow-md dark:hover:shadow-gray-900 transition"
@@ -79,7 +80,7 @@ export default function CroquiPage() {
             {sector.description && (
               <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{sector.description}</p>
             )}
-          </Link>
+          </AppLink>
         ))}
       </div>
     </div>

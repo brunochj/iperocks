@@ -19,23 +19,27 @@
 'use client';
 
 import { useUser } from "@/hooks/useUser";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { isOAuthInProgress } from "@/lib/auth/oauth";
+import { navigateTo, isCurrentPath } from "@/lib/navigate";
 
 export default function RootPage() {
   const { user, loading } = useUser();
-  const router = useRouter();
+  const redirectedRef = useRef(false);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || isOAuthInProgress()) return;
+    if (redirectedRef.current) return;
+    redirectedRef.current = true;
+
     if (!user) {
-      router.push("/login");
+      navigateTo("/login");
     } else if (!user.rulesAccepted) {
-      router.push("/onboarding");
-    } else {
-      router.push("/home");
+      navigateTo("/onboarding");
+    } else if (!isCurrentPath("/home")) {
+      navigateTo("/home");
     }
-  }, [user, loading, router]);
+  }, [user, loading]);
 
   return <div>Carregando...</div>;
 }

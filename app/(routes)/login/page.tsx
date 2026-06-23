@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { apiFetch } from "@/lib/api-fetch";
-import { signInWithGoogle } from "@/lib/auth/oauth";
+import { signInWithGoogle, redirectAuthenticatedUser } from "@/lib/auth/oauth";
+import { isCurrentPath } from "@/lib/navigate";
 import { setAppSessionToken } from "@/lib/app-session-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -24,6 +25,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const redirectedRef = useRef(false);
 
   useEffect(() => {
     const savedIdentifier = localStorage.getItem(REMEMBER_IDENTIFIER_KEY);
@@ -33,6 +35,13 @@ export default function LoginPage() {
       setRememberMe(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (redirectedRef.current) return;
+    if (!isCurrentPath('/login')) return;
+    redirectedRef.current = true;
+    void redirectAuthenticatedUser(callbackUrl);
+  }, [callbackUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

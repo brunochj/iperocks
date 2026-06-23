@@ -1,23 +1,22 @@
 'use client';
 
 import { useUser } from "@/hooks/useUser";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import BackButton from "@/app/components/back-button";
 import { apiFetch } from "@/lib/api-fetch";
+import { navigateTo } from "@/lib/navigate";
 
 export default function RankingPage() {
   const { user, loading } = useUser();
-  const router = useRouter();
   const [users, setUsers] = useState<any[]>([]);
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
   const [dataReady, setDataReady] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login");
+      navigateTo("/login");
     }
-  }, [user, loading, router]);
+  }, [user, loading]);
 
   useEffect(() => {
     const loadData = async () => {
