@@ -41,6 +41,17 @@ const UserContext = createContext<UserContextValue>({
   loading: true,
 });
 
+function toAppUser(data: Record<string, unknown>): AppUser {
+  return {
+    id: data.id as string,
+    email: (data.email as string) ?? '',
+    name: (data.name as string | null) ?? null,
+    image: (data.image as string | null) ?? null,
+    username: (data.username as string | null | undefined) ?? null,
+    rulesAccepted: Boolean(data.rulesAccepted),
+  };
+}
+
 function userFromAuthMetadata(
   authUser: {
     id: string;
@@ -116,6 +127,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const storedUser = readStoredAuthUser();
       const appToken = getAppSessionToken();
 
+      const cached = readCachedUserProfile();
+
       if (!storedUser && !appToken) {
         // No session at all — resolve immediately without waiting on Supabase
         clearOAuthFlags();
@@ -125,9 +138,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (storedUser && !options?.silent) {
-        // Optimistic: show user from storage while API check runs
-        resolve(userFromAuthMetadata(storedUser, userRef.current));
+      if (!options?.silent) {
+        // Prefer cached profile (includes rulesAccepted from API/DB)
+        if (cached && typeof cached.id === 'string') {
+          resolve(toAppUser(cached));
+        } else if (storedUser) {
+          resolve(userFromAuthMetadata(storedUser, userRef.current));
+        }
       }
 
       // ── Background: validate with Express API ─────────────────────────────
@@ -136,8 +153,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
         const data = await res.json();
 
         if (data.session?.user) {
-          writeCachedUserProfile(data.session.user);
-          resolve(userFromAuthMetadata(data.session.user, userRef.current));
+          const appUser = toAppUser(data.session.user as Record<string, unknown>);
+          writeCachedUserProfile(appUser);
+          resolve(appUser);
           console.warn('[useUser] session validated');
           return;
         }
@@ -149,7 +167,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         console.warn('[useUser] API rejected session');
       } catch {
         // API unreachable — keep the optimistic user if we had one
-        if (storedUser) {
+        if (cached && typeof cached.id === 'string') {
+          resolve(toAppUser(cached));
+          console.warn('[useUser] API unavailable, using cached session');
+        } else if (storedUser) {
           resolve(userFromAuthMetadata(storedUser, userRef.current));
           console.warn('[useUser] API unavailable, using stored session');
         } else {

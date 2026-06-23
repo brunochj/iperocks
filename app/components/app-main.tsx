@@ -2,8 +2,7 @@
 
 import { useUser } from '@/hooks/useUser';
 import { usePathname } from 'next/navigation';
-
-const AUTH_PATHS = ['/login', '/register', '/onboarding'];
+import { isAuthPath } from '@/lib/navigate';
 
 export default function AppMain({
   children,
@@ -14,10 +13,10 @@ export default function AppMain({
   const pathname = usePathname();
 
   const showNav =
+    !isAuthPath(pathname) &&
     !loading &&
     !!user &&
-    user.rulesAccepted &&
-    !AUTH_PATHS.includes(pathname);
+    user.rulesAccepted;
 
   return (
     <main className={`flex-1 ${showNav ? 'pb-20' : ''}`}>{children}</main>

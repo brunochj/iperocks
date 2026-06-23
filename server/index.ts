@@ -568,10 +568,15 @@ app.post('/api/user/accepted-rules', async (req, res) => {
   };
 
   const existingUser = await resolveDbUser(user);
+  let updatedUser = existingUser;
+
   if (existingUser) {
-    await prisma.user.update({ where: { id: existingUser.id }, data: rulesData });
+    updatedUser = await prisma.user.update({
+      where: { id: existingUser.id },
+      data: rulesData,
+    });
   } else {
-    await prisma.user.create({
+    updatedUser = await prisma.user.create({
       data: {
         id: user.id,
         email: user.email,
@@ -586,7 +591,17 @@ app.post('/api/user/accepted-rules', async (req, res) => {
     });
   }
 
-  return res.json({ success: true });
+  return res.json({
+    success: true,
+    user: {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      name: updatedUser.name,
+      username: updatedUser.username,
+      image: updatedUser.image,
+      rulesAccepted: updatedUser.rulesAccepted,
+    },
+  });
 });
 
 app.post('/api/register/check', async (req, res) => {

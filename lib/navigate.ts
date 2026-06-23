@@ -6,6 +6,20 @@ function normalizePath(path: string): string {
   );
 }
 
+/** Normalize a Next/Capacitor pathname for route comparisons. */
+export function normalizeAppPathname(pathname: string): string {
+  return pathname.replace(/\/index\.html$/, '').replace(/\/$/, '') || '/';
+}
+
+const AUTH_PATHS = ['/login', '/register', '/onboarding', '/auth/callback'];
+
+export function isAuthPath(pathname: string): boolean {
+  const normalized = normalizeAppPathname(pathname);
+  return AUTH_PATHS.some(
+    (path) => normalized === path || normalized.startsWith(`${path}/`)
+  );
+}
+
 function currentPathname(): string {
   if (typeof window === 'undefined') return '/';
   return (
