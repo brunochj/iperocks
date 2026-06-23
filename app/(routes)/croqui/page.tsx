@@ -41,7 +41,7 @@ import { getSectors } from "@/lib/data/croqui";
 export default function CroquiPage() {
   const { user, loading } = useUser();
   const [sectors, setSectors] = useState<any[]>([]);
-  const [dataReady, setDataReady] = useState(false);
+  const [dataReady, setDataReady] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -63,7 +63,7 @@ export default function CroquiPage() {
     void loadData();
   }, [user]);
 
-  if (loading || !dataReady) return <div>Carregando...</div>;
+  if (loading) return <div>Carregando...</div>;
   if (!user) return null;
 
   return (

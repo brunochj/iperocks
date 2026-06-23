@@ -714,6 +714,6 @@ app.get('/api/search', async (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`API server running on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`API server running on http://0.0.0.0:${port}`);
 });

@@ -9,9 +9,18 @@ import {
   type ReactNode,
 } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { apiFetch } from '@/lib/api-fetch';
+import {
+  apiFetch,
+  clearCachedUserProfile,
+  readCachedUserProfile,
+  writeCachedUserProfile,
+} from '@/lib/api-fetch';
 import { clearOAuthFlags } from '@/lib/auth/oauth';
 import { getAppSessionToken } from '@/lib/app-session-client';
+import {
+  readStoredAuthUser,
+  readStoredSupabaseSession,
+} from '@/lib/supabase/session-fast';
 
 export type AppUser = {
   id: string;
@@ -32,10 +41,61 @@ const UserContext = createContext<UserContextValue>({
   loading: true,
 });
 
+function userFromAuthMetadata(
+  authUser: {
+    id: string;
+    email?: string | null;
+    user_metadata?: Record<string, unknown>;
+  },
+  previous?: AppUser | null
+): AppUser {
+  const cached = readCachedUserProfile();
+  const cachedId =
+    cached && typeof cached.id === 'string' ? cached.id : null;
+
+  if (
+    cached &&
+    cachedId === authUser.id &&
+    typeof cached.rulesAccepted === 'boolean'
+  ) {
+    return {
+      id: authUser.id,
+      email: (cached.email as string) ?? authUser.email ?? '',
+      name:
+        (cached.name as string | null) ??
+        (authUser.user_metadata?.name as string | undefined) ??
+        authUser.email?.split('@')[0] ??
+        null,
+      image:
+        (cached.image as string | null) ??
+        (authUser.user_metadata?.avatar_url as string | undefined) ??
+        null,
+      username: (cached.username as string | null | undefined) ?? null,
+      rulesAccepted: Boolean(cached.rulesAccepted),
+    };
+  }
+
+  return {
+    id: authUser.id,
+    email: authUser.email ?? '',
+    name:
+      (authUser.user_metadata?.name as string | undefined) ??
+      authUser.email?.split('@')[0] ??
+      null,
+    image: (authUser.user_metadata?.avatar_url as string | undefined) ?? null,
+    username: previous?.id === authUser.id ? previous.username ?? null : null,
+    rulesAccepted:
+      previous?.id === authUser.id
+        ? previous.rulesAccepted
+        : Boolean(authUser.user_metadata?.rulesAccepted),
+  };
+}
+
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const userRef = useRef<AppUser | null>(null);
+  const loadingRef = useRef(true);
 
   useEffect(() => {
     userRef.current = user;
@@ -44,74 +104,68 @@ export function UserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const supabase = createClient();
 
+    const resolve = (nextUser: AppUser | null) => {
+      userRef.current = nextUser;
+      loadingRef.current = false;
+      setUser(nextUser);
+      setLoading(false);
+    };
+
     const loadUser = async (options?: { silent?: boolean }) => {
-      if (!options?.silent) {
-        setLoading(true);
-      }
-
+      // ── Fast path: read session directly from localStorage ────────────────
+      const storedUser = readStoredAuthUser();
       const appToken = getAppSessionToken();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      const authUser = session?.user ?? null;
 
-      if (!authUser && !appToken) {
-        setUser(null);
-        setLoading(false);
+      if (!storedUser && !appToken) {
+        // No session at all — resolve immediately without waiting on Supabase
+        clearOAuthFlags();
+        clearCachedUserProfile();
+        console.warn('[useUser] no session (fast path)');
+        resolve(null);
         return;
       }
 
-      clearOAuthFlags();
+      if (storedUser && !options?.silent) {
+        // Optimistic: show user from storage while API check runs
+        resolve(userFromAuthMetadata(storedUser, userRef.current));
+      }
 
+      // ── Background: validate with Express API ─────────────────────────────
       try {
         const res = await apiFetch('/api/auth/check');
         const data = await res.json();
 
         if (data.session?.user) {
-          setUser(data.session.user);
-          setLoading(false);
+          writeCachedUserProfile(data.session.user);
+          resolve(userFromAuthMetadata(data.session.user, userRef.current));
+          console.warn('[useUser] session validated');
           return;
         }
+
+        // API says no session — clear and sign out
+        clearOAuthFlags();
+        clearCachedUserProfile();
+        resolve(null);
+        console.warn('[useUser] API rejected session');
       } catch {
-        // Fall back to Supabase auth metadata below.
+        // API unreachable — keep the optimistic user if we had one
+        if (storedUser) {
+          resolve(userFromAuthMetadata(storedUser, userRef.current));
+          console.warn('[useUser] API unavailable, using stored session');
+        } else {
+          resolve(null);
+        }
       }
-
-      if (authUser) {
-        const previous = userRef.current;
-        setUser({
-          id: authUser.id,
-          email: authUser.email ?? '',
-          name:
-            authUser.user_metadata?.name ??
-            authUser.email?.split('@')[0] ??
-            null,
-          image: authUser.user_metadata?.avatar_url ?? null,
-          username: previous?.id === authUser.id ? previous.username ?? null : null,
-          rulesAccepted:
-            previous?.id === authUser.id
-              ? previous.rulesAccepted
-              : Boolean(authUser.user_metadata?.rulesAccepted),
-        });
-      } else {
-        setUser(null);
-      }
-
-      setLoading(false);
     };
 
     void loadUser();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'TOKEN_REFRESHED') return;
-      void loadUser({ silent: Boolean(userRef.current) });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') return;
+      void loadUser({ silent: true });
     });
 
-    const onAppSessionChange = () => {
-      void loadUser({ silent: Boolean(userRef.current) });
-    };
-
+    const onAppSessionChange = () => void loadUser({ silent: true });
     window.addEventListener('iperocks-app-session-change', onAppSessionChange);
 
     return () => {

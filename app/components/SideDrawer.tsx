@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from '@/lib/supabase/client';
 import { clearAppSessionToken } from '@/lib/app-session-client';
+import { clearCachedUserProfile } from '@/lib/api-fetch';
 import Link from "next/link";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 
@@ -118,6 +119,7 @@ export default function SideDrawer({ userName, isOpen, onClose }: SideDrawerProp
                 const supabase = createClient();
                 await supabase.auth.signOut();
                 clearAppSessionToken();
+                clearCachedUserProfile();
                 window.dispatchEvent(new Event('iperocks-app-session-change'));
                 window.location.href = '/login';
               }}
