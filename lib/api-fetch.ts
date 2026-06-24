@@ -9,14 +9,21 @@ import {
 const USER_CACHE_KEY = 'iperocks_user_profile';
 const NATIVE_FETCH_TIMEOUT_MS = 8000;
 
-/** Android emulator cannot reach the host via localhost — use 10.0.2.2 instead. */
+/** Hosted API URL — baked into native builds at `npm run build`. */
 function getExpressApiBase(): string {
-  if (typeof window !== 'undefined' && Capacitor.getPlatform() === 'android') {
-    return (
-      process.env.NEXT_PUBLIC_EXPRESS_API_URL_ANDROID ?? 'http://10.0.2.2:3001'
+  const configured = process.env.NEXT_PUBLIC_EXPRESS_API_URL?.replace(/\/$/, '');
+
+  if (configured) {
+    return configured;
+  }
+
+  if (typeof window !== 'undefined' && Capacitor.isNativePlatform()) {
+    throw new Error(
+      'NEXT_PUBLIC_EXPRESS_API_URL is missing. Set it to your deployed API (HTTPS), then rebuild the app.'
     );
   }
-  return process.env.NEXT_PUBLIC_EXPRESS_API_URL ?? 'http://localhost:3001';
+
+  return 'http://localhost:3001';
 }
 
 /** Routes with Next.js handlers — only used during `next dev` on port 3000. */

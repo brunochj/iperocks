@@ -18,10 +18,14 @@ const FULL_GRADE_ORDER = [
 ];
 
 const app = express();
-const port = Number(process.env.API_PORT ?? 3001);
+const port = Number(process.env.PORT ?? process.env.API_PORT ?? 3001);
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true });
+});
 
 function metadataString(
   metadata: Record<string, unknown> | undefined,

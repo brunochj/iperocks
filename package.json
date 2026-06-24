@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "next dev",
     "api": "tsx server/index.ts",
+    "start:api": "tsx server/index.ts",
+    "postinstall": "prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
