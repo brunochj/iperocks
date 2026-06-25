@@ -211,7 +211,7 @@ export default function HomePage() {
   const [userRankPosition, setUserRankPosition] = useState<number | null>(null);
   const [userTotalAscents, setUserTotalAscents] = useState(0);
   const [lastAscents, setLastAscents] = useState<any[]>([]);
-  const [dataReady, setDataReady] = useState(false);
+  const [dataReady, setDataReady] = useState(true);
 
   useEffect(() => {
     if (loading) return;
@@ -275,10 +275,6 @@ export default function HomePage() {
 
   if (!user || !user.rulesAccepted) {
     return null;
-  }
-
-  if (!dataReady) {
-    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   }
 
   return (

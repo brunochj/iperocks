@@ -23,13 +23,15 @@ export async function POST(req: Request) {
   };
 
   const existingUser = await resolveDbUser(user);
+  let updatedUser = existingUser;
+
   if (existingUser) {
-    await prisma.user.update({
+    updatedUser = await prisma.user.update({
       where: { id: existingUser.id },
       data: rulesData,
     });
   } else {
-    await prisma.user.create({
+    updatedUser = await prisma.user.create({
       data: {
         id: user.id,
         email: user.email,
@@ -44,5 +46,15 @@ export async function POST(req: Request) {
     });
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({
+    success: true,
+    user: {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      name: updatedUser.name,
+      username: updatedUser.username,
+      image: updatedUser.image,
+      rulesAccepted: updatedUser.rulesAccepted,
+    },
+  });
 }

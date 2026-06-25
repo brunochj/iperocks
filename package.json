@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "next dev",
     "api": "tsx server/index.ts",
+    "start:api": "tsx server/index.ts",
+    "postinstall": "prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -43,6 +45,7 @@
     "uuid": "^14.0.0"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^3.0.0",

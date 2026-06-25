@@ -18,10 +18,14 @@ const FULL_GRADE_ORDER = [
 ];
 
 const app = express();
-const port = Number(process.env.API_PORT ?? 3001);
+const port = Number(process.env.PORT ?? process.env.API_PORT ?? 3001);
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true });
+});
 
 function metadataString(
   metadata: Record<string, unknown> | undefined,
@@ -568,10 +572,15 @@ app.post('/api/user/accepted-rules', async (req, res) => {
   };
 
   const existingUser = await resolveDbUser(user);
+  let updatedUser = existingUser;
+
   if (existingUser) {
-    await prisma.user.update({ where: { id: existingUser.id }, data: rulesData });
+    updatedUser = await prisma.user.update({
+      where: { id: existingUser.id },
+      data: rulesData,
+    });
   } else {
-    await prisma.user.create({
+    updatedUser = await prisma.user.create({
       data: {
         id: user.id,
         email: user.email,
@@ -586,7 +595,17 @@ app.post('/api/user/accepted-rules', async (req, res) => {
     });
   }
 
-  return res.json({ success: true });
+  return res.json({
+    success: true,
+    user: {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      name: updatedUser.name,
+      username: updatedUser.username,
+      image: updatedUser.image,
+      rulesAccepted: updatedUser.rulesAccepted,
+    },
+  });
 });
 
 app.post('/api/register/check', async (req, res) => {
@@ -714,6 +733,6 @@ app.get('/api/search', async (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`API server running on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`API server running on http://0.0.0.0:${port}`);
 });

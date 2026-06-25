@@ -5,8 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { apiFetch } from "@/lib/api-fetch";
+import { apiFetch, writeCachedUserProfile } from "@/lib/api-fetch";
 import ThemeToggle from "../../components/ThemeToggle";
+import { navigateTo } from "@/lib/navigate";
 
 export default function OnboardingPage() {
   const { user, loading: userLoading } = useUser();
@@ -101,9 +102,12 @@ export default function OnboardingPage() {
     setLoading(true);
     try {
       const res = await apiFetch("/api/user/accepted-rules", { method: "POST" });
+      const data = await res.json();
       if (res.ok) {
+        const profile = data.user ?? (user ? { ...user, rulesAccepted: true } : null);
+        if (profile) writeCachedUserProfile(profile);
         window.dispatchEvent(new Event("iperocks-app-session-change"));
-        window.location.href = "/home";
+        navigateTo("/home");
       } else {
         alert("Erro ao aceitar regras. Tente novamente.");
         setLoading(false);

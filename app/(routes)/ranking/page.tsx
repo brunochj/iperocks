@@ -10,7 +10,7 @@ export default function RankingPage() {
   const { user, loading } = useUser();
   const [users, setUsers] = useState<any[]>([]);
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
-  const [dataReady, setDataReady] = useState(false);
+  const [dataReady, setDataReady] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -35,7 +35,7 @@ export default function RankingPage() {
     void loadData();
   }, []);
 
-  if (loading || !dataReady) return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+  if (loading) return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   if (!user) return null;
 
   return (

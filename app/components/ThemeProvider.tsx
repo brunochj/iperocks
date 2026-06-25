@@ -51,14 +51,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
-  // Prevent flash of wrong theme
-  if (!mounted) {
-    return <div style={{ visibility: "hidden" }}>{children}</div>;
-  }
-
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
+      {/* Keep visibility:hidden until theme is determined to avoid flash */}
+      <div style={mounted ? undefined : { visibility: "hidden" }}>
+        {children}
+      </div>
     </ThemeContext.Provider>
   );
 }

@@ -4,8 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { apiFetch } from "@/lib/api-fetch";
 import { signInWithGoogle, redirectAuthenticatedUser } from "@/lib/auth/oauth";
-import { isCurrentPath } from "@/lib/navigate";
+import { isCurrentPath, navigateTo } from "@/lib/navigate";
 import { setAppSessionToken } from "@/lib/app-session-client";
+import { writeCachedUserProfile } from "@/lib/api-fetch";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -107,8 +108,10 @@ export default function LoginPage() {
         localStorage.removeItem(REMEMBER_ME_KEY);
       }
 
+      if (data.user) writeCachedUserProfile(data.user);
+
       const destination = data.user?.rulesAccepted ? callbackUrl : "/onboarding";
-      window.location.href = destination;
+      navigateTo(destination);
     } catch {
       setError("Credenciais inválidas. Tente novamente.");
     } finally {

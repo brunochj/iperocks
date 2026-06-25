@@ -1,34 +1,16 @@
-// import { redirect } from "next/navigation";
-// import { getServerSession } from "next-auth";
-// import { authOptions } from "@/lib/auth";
-
-// export default async function RootPage() {
-//   const session = await getServerSession(authOptions);
-  
-//   if (!session) {
-//     redirect("/login");
-//   }
-  
-//   if (!session.user.rulesAccepted) {
-//     redirect("/onboarding");
-//   }
-  
-//   redirect("/home");
-// }
-
 'use client';
 
 import { useUser } from "@/hooks/useUser";
 import { useEffect, useRef } from "react";
-import { isOAuthInProgress } from "@/lib/auth/oauth";
-import { navigateTo, isCurrentPath } from "@/lib/navigate";
+import { navigateTo } from "@/lib/navigate";
 
 export default function RootPage() {
   const { user, loading } = useUser();
   const redirectedRef = useRef(false);
 
   useEffect(() => {
-    if (loading || isOAuthInProgress()) return;
+    console.warn('[root] loading=', loading, 'user=', user?.id ?? null, 'path=', typeof window !== 'undefined' ? window.location.pathname : 'ssr');
+    if (loading) return;
     if (redirectedRef.current) return;
     redirectedRef.current = true;
 
@@ -36,10 +18,10 @@ export default function RootPage() {
       navigateTo("/login");
     } else if (!user.rulesAccepted) {
       navigateTo("/onboarding");
-    } else if (!isCurrentPath("/home")) {
+    } else {
       navigateTo("/home");
     }
   }, [user, loading]);
 
-  return <div>Carregando...</div>;
+  return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
 }
