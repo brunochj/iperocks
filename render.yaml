@@ -3,7 +3,7 @@ services:
     name: iperocks-api
     runtime: node
     plan: free
-    buildCommand: npm install
+    buildCommand: npm ci || npm install
     startCommand: npm run start:api
     healthCheckPath: /api/health
     envVars:
