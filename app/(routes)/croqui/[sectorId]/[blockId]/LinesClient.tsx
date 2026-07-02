@@ -215,6 +215,14 @@ export default function LinesClient({
     "V17",
   ];
 
+  const starLabels: Record<number, string> = {
+    1: "Ok",
+    2: "Legal",
+    3: "Clássico do bloco",
+    4: "Clássico de Iperocks",
+    5: "Clássico mundial",
+  };
+
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -436,6 +444,18 @@ export default function LinesClient({
                       </button>
                     ))}
                   </div>
+
+                  {/* ⭐ LEGENDA DA ESTRELA SELECIONADA */}
+                  {tempRating[line.id] && (
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                      {
+                        starLabels[
+                          tempRating[line.id] as keyof typeof starLabels
+                        ]
+                      }
+                    </p>
+                  )}
+
                   {ratingError[line.id] && (
                     <p className="text-red-500 text-xs mb-2">
                       {ratingError[line.id]}
