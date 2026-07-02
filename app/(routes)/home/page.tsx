@@ -235,7 +235,8 @@ export default function HomePage() {
 
     let cancelled = false;
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 15000);
+    // Render free tier cold-starts can take 30-60s
+    const timeout = window.setTimeout(() => controller.abort(), 60000);
 
     const loadData = async () => {
       try {
@@ -253,10 +254,12 @@ export default function HomePage() {
         setUserTotalAscents(data.userTotalAscents ?? 0);
         setLastAscents(data.lastAscents ?? []);
       } catch (error) {
+        // Ignore AbortError from cleanup or navigation
+        if (error instanceof Error && error.name === 'AbortError') return;
         console.error("Erro ao carregar dados da home:", error);
       } finally {
         window.clearTimeout(timeout);
-        setDataReady(true);
+        if (!cancelled) setDataReady(true);
       }
     };
 

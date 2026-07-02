@@ -95,7 +95,10 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
       credentials: 'include',
     });
   } catch (error) {
-    console.error(`[apiFetch] ${path} failed (${url}):`, error);
+    // Don't log AbortError — expected on navigation/cleanup
+    if (!(error instanceof Error && error.name === 'AbortError')) {
+      console.error(`[apiFetch] ${path} failed (${url}):`, error);
+    }
     throw error;
   }
 }

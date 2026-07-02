@@ -25,14 +25,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme(savedTheme);
       document.documentElement.classList.toggle("dark", savedTheme === "dark");
     } else {
-      // Check if we're in development mode
-      const isDev = process.env.NODE_ENV === "development";
-      
-      if (isDev) {
-        // Default to dark in development
-        setTheme("dark");
-        document.documentElement.classList.add("dark");
-      } else {
         // Use system preference in production
         const systemPrefersDark = window.matchMedia(
           "(prefers-color-scheme: dark)"
@@ -40,7 +32,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const initialTheme = systemPrefersDark ? "dark" : "light";
         setTheme(initialTheme);
         document.documentElement.classList.toggle("dark", systemPrefersDark);
-      }
     }
   }, []);
 

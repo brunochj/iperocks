@@ -1,9 +1,9 @@
-// components/SideDrawer.tsx
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { signOutUser } from '@/lib/auth/logout';
 import Link from "next/link";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
+import { useTheme } from "./ThemeProvider"; // ← importe o hook
 
 type SideDrawerProps = {
   userName: string;
@@ -12,7 +12,7 @@ type SideDrawerProps = {
 };
 
 export default function SideDrawer({ userName, isOpen, onClose }: SideDrawerProps) {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { theme, toggleTheme } = useTheme(); // ← use o contexto
   const drawerRef = useRef<HTMLDivElement>(null);
 
   // Fechar ao clicar fora
@@ -34,37 +34,17 @@ export default function SideDrawer({ userName, isOpen, onClose }: SideDrawerProp
     };
   }, [isOpen, onClose]);
 
-  // Carregar tema salvo
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      if (savedTheme === "dark") document.documentElement.classList.add("dark");
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-    localStorage.setItem("theme", newTheme);
-  };
+  // Não precisa mais do useEffect para carregar tema
+  // Nem do estado local theme/setTheme
 
   return (
     <>
-      {/* Backdrop com animação de fade */}
       <div
         className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
       />
-
-      {/* Drawer com animação de deslize */}
       <div
         ref={drawerRef}
         className={`fixed right-0 top-0 h-full w-64 bg-white dark:bg-gray-800 shadow-xl z-50 p-4 transform transition-transform duration-300 ease-in-out ${
@@ -105,7 +85,7 @@ export default function SideDrawer({ userName, isOpen, onClose }: SideDrawerProp
           </li>
           <li>
             <button
-              onClick={toggleTheme}
+              onClick={toggleTheme} // ← usa o toggle do Provider
               className="block w-full text-left py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
             >
               {theme === "light" ? "🌙 Modo escuro" : "☀️ Modo claro"}

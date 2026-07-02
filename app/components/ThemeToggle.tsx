@@ -12,7 +12,6 @@ export default function ThemeToggle() {
     setMounted(true);
   }, []);
 
-  // Prevent hydration mismatch by not rendering until mounted
   if (!mounted) {
     return (
       <div className="h-6 w-11 rounded-full bg-gray-300 dark:bg-gray-700" />

@@ -28,26 +28,41 @@ function currentPathname(): string {
   );
 }
 
+/** Check if running inside Capacitor native shell. */
+function isNativePlatform(): boolean {
+  if (typeof window === 'undefined') return false;
+  // Capacitor injects this global; also check for capacitor:// or localhost on mobile schemes
+  const win = window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } };
+  return win.Capacitor?.isNativePlatform?.() ?? false;
+}
+
 /**
  * Static export + Capacitor: navigate using explicit /route/index.html paths.
  * Trailing-slash directory URLs (/login/) are not reliably served by the
  * Capacitor Android WebViewAssetLoader; using the explicit file avoids the
  * SPA-fallback-to-root loop.
+ *
+ * On web (non-native), use clean paths without index.html.
  */
 export function toAppPath(path: string): string {
   if (typeof window === 'undefined') return path;
 
   const url = new URL(path, window.location.origin);
-  const hasFileExtension = /\.[a-z0-9]+$/i.test(url.pathname);
 
   if (url.pathname === '/') {
     return `/${url.search}${url.hash}`;
   }
 
-  if (!hasFileExtension) {
-    // Normalise to explicit index.html so Capacitor serves the right file
-    const clean = url.pathname.replace(/\/$/, '');
-    url.pathname = `${clean}/index.html`;
+  // Only add /index.html on native platforms (Capacitor)
+  if (isNativePlatform()) {
+    const hasFileExtension = /\.[a-z0-9]+$/i.test(url.pathname);
+    if (!hasFileExtension) {
+      const clean = url.pathname.replace(/\/$/, '');
+      url.pathname = `${clean}/index.html`;
+    }
+  } else {
+    // Web: use clean path without trailing slash
+    url.pathname = url.pathname.replace(/\/$/, '') || '/';
   }
 
   return `${url.pathname}${url.search}${url.hash}`;
