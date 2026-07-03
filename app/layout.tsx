@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import AppNavbar from "./components/app-navbar";
 import AppMain from "./components/app-main";
 // import BackButton from "./components/back-button";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,7 +26,7 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
       </head>
-      <body className={`${geistSans.variable} antialiased bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100`}>
+      <body className="antialiased bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
         <Providers>
           <div className="flex min-h-screen flex-col">
             <AppNavbar />

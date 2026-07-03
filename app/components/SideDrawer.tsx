@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { signOutUser } from '@/lib/auth/logout';
+import { signOutUser } from "@/lib/auth/logout";
 import Link from "next/link";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "./ThemeProvider"; // ← importe o hook
@@ -11,14 +11,21 @@ type SideDrawerProps = {
   onClose: () => void;
 };
 
-export default function SideDrawer({ userName, isOpen, onClose }: SideDrawerProps) {
+export default function SideDrawer({
+  userName,
+  isOpen,
+  onClose,
+}: SideDrawerProps) {
   const { theme, toggleTheme } = useTheme(); // ← use o contexto
   const drawerRef = useRef<HTMLDivElement>(null);
 
   // Fechar ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (drawerRef.current && !drawerRef.current.contains(event.target as Node)) {
+      if (
+        drawerRef.current &&
+        !drawerRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     };

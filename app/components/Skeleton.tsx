@@ -1,5 +1,5 @@
-export function Skeleton({ className }: { className?: string }) {
-    return <div className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${className}`} />;
+export function Skeleton({ className, style }: { className?: string; style?: React.CSSProperties }) {
+    return <div className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${className}`} style={style} />;
   }
   
   export function SkeletonText({ lines = 1, className = "" }: { lines?: number; className?: string }) {

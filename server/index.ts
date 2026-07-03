@@ -733,6 +733,91 @@ app.get('/api/search', async (req, res) => {
   });
 });
 
+// Profile endpoint
+app.get('/api/profile', async (req, res) => {
+  try {
+    const authUser = await getAuthUserFromAuthHeader(req.headers.authorization);
+    if (!authUser) {
+      return res.status(401).json({ error: 'Não autorizado' });
+    }
+
+    const dbUser = await prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        bio: true,
+        image: true,
+        createdAt: true,
+      },
+    });
+
+    if (!dbUser) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    // Estatísticas
+    const totalAscents = await prisma.ascent.count({
+      where: { userId: authUser.id },
+    });
+
+    const allAscents = await prisma.ascent.findMany({
+      where: { userId: authUser.id },
+      select: {
+        line: { select: { grade: true } },
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    // Grau mais difícil (considerando V0..V16, Projeto)
+    const gradeOrder = ['V0','V1','V2','V3','V4','V5','V6','V7','V8','V9','V10','V11','V12','V13','V14','V15','V16','Projeto'];
+    let hardestGrade = null;
+    let hardestIndex = -1;
+    for (const ascent of allAscents) {
+      const idx = gradeOrder.indexOf(ascent.line.grade);
+      if (idx > hardestIndex) {
+        hardestIndex = idx;
+        hardestGrade = ascent.line.grade;
+      }
+    }
+
+    // Ascensões por grau (para gráfico)
+    const gradeCounts: Record<string, number> = {};
+    for (const ascent of allAscents) {
+      const grade = ascent.line.grade;
+      gradeCounts[grade] = (gradeCounts[grade] || 0) + 1;
+    }
+
+    // Últimas 5 ascensões
+    const lastAscents = await prisma.ascent.findMany({
+      where: { userId: authUser.id },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      include: { line: { select: { name: true, grade: true } } },
+    });
+
+    return res.json({
+      user: dbUser,
+      stats: {
+        totalAscents,
+        hardestGrade,
+        gradeCounts,
+        lastAscents: lastAscents.map(a => ({
+          lineName: a.line.name,
+          grade: a.line.grade,
+          createdAt: a.createdAt,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error('Error loading profile:', error);
+    return res.status(500).json({ error: 'Erro ao carregar perfil' });
+  }
+});
+
 app.listen(port, '0.0.0.0', () => {
   console.log(`API server running on http://0.0.0.0:${port}`);
 });

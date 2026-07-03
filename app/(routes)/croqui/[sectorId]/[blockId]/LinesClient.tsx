@@ -397,10 +397,10 @@ export default function LinesClient({
                   {hasImage && (
                     <div
                       className="mb-4 cursor-pointer"
-                      onClick={() => setSelectedImage(line.imageUrl)}
+                      onClick={() => setSelectedImage(line.imageUrl ?? null)}
                     >
                       <img
-                        src={line.imageUrl}
+                        src={line.imageUrl ?? undefined}
                         alt={line.name}
                         className="w-full max-h-96 object-contain rounded-lg"
                       />
