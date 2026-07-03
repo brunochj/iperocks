@@ -23,6 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+      </head>
       <body className={`${geistSans.variable} antialiased bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100`}>
         <Providers>
           <div className="flex min-h-screen flex-col">

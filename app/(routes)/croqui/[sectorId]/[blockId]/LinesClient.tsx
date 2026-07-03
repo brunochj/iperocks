@@ -42,7 +42,6 @@ export default function LinesClient({
   expandLineId = null,
   userAscents = [],
 }: LinesClientProps) {
-  console.log("userAscents recebido:", userAscents); // no início do componente
   const { user } = useUser();
   const [expandedLineId, setExpandedLineId] = useState<string | null>(
     expandLineId,
@@ -312,10 +311,19 @@ export default function LinesClient({
                 )}
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-2">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                         {line.name}
                       </h3>
+                      {ratingMap[line.id] && ratingMap[line.id] > 3 && (
+                        <span 
+                          className="material-symbols-outlined text-yellow-500 text-xl" 
+                          style={{ fontSize: '20px' }}
+                          title={`Avaliação média: ${ratingMap[line.id].toFixed(1)}`}
+                        >
+                          crown
+                        </span>
+                      )}
                       {renderAlerts(line.id)}
                     </div>
                     {ascending[line.id] ? (
