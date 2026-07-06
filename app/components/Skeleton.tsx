@@ -21,22 +21,25 @@ export function Skeleton({ className, style }: { className?: string; style?: Rea
     );
   }
   
-  export function SkeletonChart() {
-    return (
-      <div className="space-y-3">
-        <div className="flex justify-between items-end h-32">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="w-6 h-full" style={{ height: `${20 + Math.random() * 60}%` }} />
-          ))}
-        </div>
-        <div className="flex justify-between">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-3 w-6" />
-          ))}
-        </div>
+export function SkeletonChart() {
+  // Use fixed heights to avoid hydration mismatch
+  const heights = ['30%', '50%', '40%', '75%', '60%', '35%', '70%', '45%'];
+  
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between items-end h-32">
+        {heights.map((height, i) => (
+          <Skeleton key={i} className="w-6 h-full" style={{ height }} />
+        ))}
       </div>
-    );
-  }
+      <div className="flex justify-between">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Skeleton key={i} className="h-3 w-6" />
+        ))}
+      </div>
+    </div>
+  );
+}
   
   export function SkeletonRanking({ items = 5 }: { items?: number }) {
     return (

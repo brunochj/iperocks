@@ -70,7 +70,8 @@ export default function ProfilePage() {
 
   if (!user || !profileData) return null;
 
-  const { user: userInfo, stats, lastAscents } = profileData;
+  const { user: userInfo, stats } = profileData;
+  const lastAscents = stats?.lastAscents ?? [];
 
   return (
     <div className="max-w-2xl mx-auto p-4 pb-20">
@@ -108,27 +109,15 @@ export default function ProfilePage() {
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
             <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-              {stats.totalAscents}
+              {stats?.totalAscents ?? 0}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Vias completadas</p>
           </div>
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
             <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {stats.hardestGrade || "-"}
+              {stats?.hardestGrade || "-"}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">Grau mais difícil</p>
-          </div>
-          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {stats.totalFlashes}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Flash</p>
-          </div>
-          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
-            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {stats.totalProjects}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Projetos</p>
           </div>
         </div>
       </div>
@@ -142,8 +131,8 @@ export default function ProfilePage() {
           <p className="text-gray-500 text-sm">Nenhuma via completada ainda.</p>
         ) : (
           <ul className="space-y-2">
-            {lastAscents.map((ascent: any) => (
-              <li key={ascent.id} className="flex justify-between items-center border-b dark:border-gray-700 pb-2">
+            {lastAscents.map((ascent: any, index: number) => (
+              <li key={ascent.id ?? `${ascent.lineName}-${index}`} className="flex justify-between items-center border-b dark:border-gray-700 pb-2">
                 <div>
                   <span className="font-medium text-gray-900 dark:text-white">{ascent.lineName}</span>
                   <span className="text-xs text-gray-500 ml-2">{ascent.grade}</span>

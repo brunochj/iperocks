@@ -63,3 +63,34 @@ When the user asks you to fix or change something:
 
 **Remember**: Restraint is a feature, not a bug. Users appreciate precise, targeted changes over well-intentioned but unwanted modifications.
 <!-- END:change-only-what-is-asked -->
+
+<!-- BEGIN:understand-before-modify -->
+# Understand Before Modifying (STRICT RULE)
+
+**Before making any code change, you MUST:**
+
+1. **Understand WHAT** - Read the relevant code to fully understand what it does currently
+2. **Understand WHY** - Know why the change is needed and what problem it solves
+3. **Understand WHERE** - Identify ALL files/components affected by the change (frontend, backend, types, etc.)
+
+**After making changes, you MUST:**
+
+1. **Test E2E** - Manually trace through the entire flow you modified:
+   - If you changed an API endpoint → verify frontend calls it correctly and handles the response
+   - If you changed a form → verify data flows from UI → API → database → back to UI
+   - If you changed state logic → verify the UI updates correctly in all scenarios
+
+2. **Verify data flow** - Confirm data is being:
+   - Sent correctly from the frontend (check request body)
+   - Received correctly by the API (check destructuring)
+   - Saved correctly to the database (check Prisma query)
+   - Returned correctly to the frontend (check response object)
+
+**Common mistakes to avoid:**
+- Commenting out code without understanding why it was there
+- Adding fields to API response but forgetting to update the query that fetches them
+- Changing frontend to send data but forgetting to update backend to receive it
+- Assuming a change works without tracing the full data flow
+
+**When in doubt:** Ask the user to clarify the expected behavior before implementing.
+<!-- END:understand-before-modify -->
