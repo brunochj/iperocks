@@ -125,3 +125,17 @@ enum AlertType {
   FALL_RISK
   NO_ACCESS
 }
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lineId    String
+  line      Line     @relation(fields: [lineId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}

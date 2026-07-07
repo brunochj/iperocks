@@ -12,6 +12,7 @@ import {
   hasServiceRoleKey,
   signInWithPassword,
 } from '@/lib/server/supabase-admin';
+import alertsRouter from './routes/alerts';
 
 const FULL_GRADE_ORDER = [
   'V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'Projeto',
@@ -817,6 +818,8 @@ app.get('/api/profile', async (req, res) => {
     return res.status(500).json({ error: 'Erro ao carregar perfil' });
   }
 });
+
+app.use('/api/alerts', alertsRouter);
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`API server running on http://0.0.0.0:${port}`);
