@@ -821,6 +821,26 @@ app.get('/api/profile', async (req, res) => {
 
 app.use('/api/alerts', alertsRouter);
 
+app.get('/api/blocks', async (req, res) => {
+  try {
+    const user = await getAuthUserFromAuthHeader(req.headers.authorization);
+    if (!user) return res.status(401).json({ error: 'Não autorizado' });
+
+    const blocks = await prisma.block.findMany({
+      select: {
+        id: true,
+        name: true,
+        sector: { select: { name: true } },
+      },
+      orderBy: { sector: { name: 'asc' } },
+    });
+    res.json({ blocks });
+  } catch (error) {
+    console.error('Erro ao listar blocos:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 app.listen(port, '0.0.0.0', () => {
   console.log(`API server running on http://0.0.0.0:${port}`);
 });

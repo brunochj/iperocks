@@ -14,6 +14,14 @@ import {
   SkeletonRanking,
   SkeletonAscents,
 } from "@/app/components/Skeleton";
+import Link from "next/link";
+
+const alertTypeLabels: Record<string, string> = {
+  NEST: "🐦 Ninho de pássaro",
+  BROKEN_HOLD: "💔 Agarra quebrada",
+  FALL_RISK: "⚠️ Risco de queda",
+  NO_ACCESS: "🚧 Sem acesso",
+};
 
 export default function HomePage() {
   const { user, loading } = useUser();
@@ -41,6 +49,8 @@ export default function HomePage() {
     }
   }, [user, loading]);
 
+  const [recentAlerts, setRecentAlerts] = useState<any[]>([]);
+
   useEffect(() => {
     if (!user?.rulesAccepted) return;
 
@@ -55,7 +65,8 @@ export default function HomePage() {
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
-
+        const alertsRes = await apiFetch("/api/alerts?limit=5&page=1");
+        const alertsData = await alertsRes.json();
         const data = await res.json();
         if (cancelled) return;
 
@@ -64,6 +75,7 @@ export default function HomePage() {
         setUserRankPosition(data.userRankPosition ?? null);
         setUserTotalAscents(data.userTotalAscents ?? 0);
         setLastAscents(data.lastAscents ?? []);
+        setRecentAlerts(alertsData.alerts || []);
       } catch (error) {
         // Ignore AbortError from cleanup or navigation
         if (error instanceof Error && error.name === "AbortError") return;
@@ -91,6 +103,9 @@ export default function HomePage() {
         </SkeletonCard>
         <SkeletonCard>
           <SkeletonRanking items={5} />
+        </SkeletonCard>
+        <SkeletonCard>
+          <SkeletonAscents items={5} />
         </SkeletonCard>
         <SkeletonCard>
           <SkeletonAscents items={5} />
@@ -190,6 +205,41 @@ export default function HomePage() {
             ))}
           </ul>
         )}
+      </CollapsibleCard>
+
+      <CollapsibleCard title="Alertas recentes" defaultExpanded={false}>
+        <AppLink
+          href="/alerts"
+          className="text-sm text-gray-500 dark:text-gray-400 pb-4 block"
+        >
+          Ver todos os alertas
+        </AppLink>
+        {recentAlerts.length === 0 ? (
+          <p className="text-gray-500 text-sm">Nenhum alerta ainda.</p>
+        ) : (
+          <ul className="space-y-2">
+            {recentAlerts.map((alert) => (
+              <li
+                key={alert.id}
+                className="flex justify-between items-center border-b pb-1"
+              >
+                <div className="flex items-center gap-2 justify-between w-full">
+                  <span className="font-medium">{alert.line.name}</span>
+
+                  <span className="text-xs text-gray-500 ml-2">
+                    {alertTypeLabels[alert.type] ?? alert.type}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Link
+          href="/croqui"
+          className="block text-center text-sm text-indigo-600 hover:underline dark:text-indigo-400 mt-3"
+        >
+          Encontrou um problema? Reporte no croqui →
+        </Link>
       </CollapsibleCard>
     </div>
   );

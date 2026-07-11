@@ -43,11 +43,12 @@ function isNextDevServer(): boolean {
 }
 
 function resolveApiBase(path: string): string {
-  if (
-    isNextDevServer() &&
-    NEXT_API_PATHS.some((prefix) => path.startsWith(prefix))
-  ) {
-    return window.location.origin;
+  if (isNextDevServer()) {
+    if (NEXT_API_PATHS.some((prefix) => path.startsWith(prefix))) {
+      return window.location.origin;
+    }
+    // Local dev always uses the Express API on 3001, even if .env points to Render.
+    return 'http://localhost:3001';
   }
   return getExpressApiBase();
 }

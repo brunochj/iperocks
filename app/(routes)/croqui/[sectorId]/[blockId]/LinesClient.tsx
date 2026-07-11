@@ -1,9 +1,12 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
 import { apiFetch } from "@/lib/api-fetch";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import ImageModal from "@/app/components/ImageModal";
+import AlertPopover from "@/app/components/AlertPopover";
+import AddAlertModal from "@/app/components/AddAlertModal";
 
 type Line = {
   id: string;
@@ -43,6 +46,7 @@ export default function LinesClient({
   userAscents = [],
 }: LinesClientProps) {
   const { user } = useUser();
+  const router = useRouter();
   const [expandedLineId, setExpandedLineId] = useState<string | null>(
     expandLineId,
   );
@@ -71,11 +75,59 @@ export default function LinesClient({
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // --- Alert Popover ---
+  const [alertPopover, setAlertPopover] = useState<{
+    open: boolean;
+    lineId: string | null;
+  }>({ open: false, lineId: null });
+  const [lineAlerts, setLineAlerts] = useState<any[]>([]);
+  const [loadingAlerts, setLoadingAlerts] = useState(false);
+  // --- Add Alert Modal ---
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [alertLineId, setAlertLineId] = useState<string>("");
+  // Buscar alertas da linha quando o popover abrir
+  useEffect(() => {
+    if (!alertPopover.open || !alertPopover.lineId) {
+      setLineAlerts([]);
+      return;
+    }
+    const fetchAlerts = async () => {
+      setLoadingAlerts(true);
+      try {
+        const res = await apiFetch(`/api/alerts/line/${alertPopover.lineId}`);
+        const data = await res.json();
+        setLineAlerts(data.alerts || []);
+      } catch (error) {
+        console.error("Erro ao buscar alertas:", error);
+      } finally {
+        setLoadingAlerts(false);
+      }
+    };
+    fetchAlerts();
+  }, [alertPopover.open, alertPopover.lineId]);
+
+  const handleResolveAlert = async (alertId: string) => {
+    const res = await apiFetch(`/api/alerts/${alertId}`, { method: "PATCH" });
+    if (res.ok) {
+      setLineAlerts((prev) => prev.filter((a) => a.id !== alertId));
+    } else {
+      alert("Erro ao resolver alerta");
+    }
+  };
+
+  const openAlertPopover = (lineId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setAlertPopover({ open: true, lineId });
+  };
+
+  const closeAlertPopover = () => {
+    setAlertPopover({ open: false, lineId: null });
+  };
+
+  // --- Fim Alert Popover ---
+
   // Determinar se a linha pode ser desmarcada (sem avaliação)
   const canUnmark = (lineId: string) => {
-    // const ascent = userAscents.find((a: any) => a.lineId === lineId);
-    // console.log("canUnmark check:", { lineId, ascent, hasAscent: !!ascent, rating: ascent?.rating, gradeSuggestion: ascent?.gradeSuggestion });
-    // return ascent && !ascent.rating && !ascent.gradeSuggestion;
     if (!ascending[lineId]) return false;
     if (showReviewForm === lineId) return true;
     const ascent = userAscents.find((a: any) => a.lineId === lineId);
@@ -181,18 +233,6 @@ export default function LinesClient({
     setExpandedLineId((prev) => (prev === lineId ? null : lineId));
   };
 
-  const renderAlerts = (lineId: string) => {
-    const types = alertsByLine[lineId] || [];
-    if (types.includes("FALL_RISK")) {
-      return (
-        <span className="text-red-600 ml-2" title="Risco de queda">
-          ⚠️
-        </span>
-      );
-    }
-    return null;
-  };
-
   const gradeOptions = [
     "V0",
     "V1",
@@ -222,6 +262,21 @@ export default function LinesClient({
     5: "Clássico mundial",
   };
 
+  // Mapeamento de tipos de alerta para ícones/cores
+  const alertTypeConfig: Record<
+    string,
+    { label: string; icon: string; color: string }
+  > = {
+    FALL_RISK: { label: "Risco de queda", icon: "⚠️", color: "text-red-600" },
+    BROKEN_HOLD: {
+      label: "Agarra quebrada",
+      icon: "💔",
+      color: "text-orange-500",
+    },
+    NEST: { label: "Ninho", icon: "🐦", color: "text-yellow-600" },
+    NO_ACCESS: { label: "Sem acesso", icon: "🚧", color: "text-gray-500" },
+  };
+
   return (
     <div className="p-4 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -233,7 +288,7 @@ export default function LinesClient({
         </p>
       )}
 
-      {/* Filtro e ordenação (mesmo código) */}
+      {/* Filtro e ordenação */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Filtrar por grau
@@ -289,6 +344,7 @@ export default function LinesClient({
         {sortedLines.map((line) => {
           const isExpanded = expandedLineId === line.id;
           const hasImage = !!line.imageUrl;
+          const alertCount = alertsByLine[line.id]?.length || 0;
 
           return (
             <div
@@ -316,15 +372,123 @@ export default function LinesClient({
                         {line.name}
                       </h3>
                       {ratingMap[line.id] && ratingMap[line.id] > 3 && (
-                        <span 
-                          className="material-symbols-outlined text-yellow-500 text-xl" 
-                          style={{ fontSize: '20px' }}
-                          title={`Avaliação média: ${ratingMap[line.id].toFixed(1)}`}
+                        <span
+                          className="material-symbols-outlined text-yellow-500 text-xl"
+                          style={{ fontSize: "20px" }}
+                          title={`Avaliação média: ${ratingMap[line.id].toFixed(
+                            1,
+                          )}`}
                         >
                           crown
                         </span>
                       )}
-                      {renderAlerts(line.id)}
+                      {/* Ícone de alerta com contagem e popover */}
+                      {/* Botão único de alerta + reportar */}
+                      <div className="relative inline-block">
+                        <button
+                          className="text-red-600 text-sm font-medium flex items-center gap-0.5 hover:underline"
+                          onClick={(e) => openAlertPopover(line.id, e)}
+                        >
+                          🚨 {alertCount}
+                        </button>
+                        {alertPopover.open &&
+                          alertPopover.lineId === line.id && (
+                            <div
+                              className="absolute z-20 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-3 w-72 max-h-60 overflow-auto border dark:border-gray-700 -translate-x-1/2 left-1/2 top-full mt-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="font-semibold text-sm dark:text-white">
+                                  Alertas
+                                </span>
+                                <button
+                                  className="text-xs text-indigo-600 hover:underline"
+                                  onClick={() => {
+                                    closeAlertPopover();
+                                    router.push(`/alerts?lineId=${line.id}`);
+                                  }}
+                                >
+                                  Ver todos
+                                </button>
+                              </div>
+                              {loadingAlerts ? (
+                                <p className="text-sm text-gray-500">
+                                  Carregando...
+                                </p>
+                              ) : lineAlerts.length === 0 ? (
+                                <p className="text-sm text-gray-500">
+                                  Nenhum alerta ativo
+                                </p>
+                              ) : (
+                                <ul className="space-y-2">
+                                  {lineAlerts.map((alert) => {
+                                    const config = alertTypeConfig[
+                                      alert.type
+                                    ] || {
+                                      label: alert.type,
+                                      icon: "📌",
+                                      color: "text-gray-600",
+                                    };
+                                    return (
+                                      <li
+                                        key={alert.id}
+                                        className="flex justify-between items-start text-sm border-b dark:border-gray-700 pb-1"
+                                      >
+                                        <div>
+                                          <p
+                                            className={`font-medium ${config.color}`}
+                                          >
+                                            {config.icon} {config.label}
+                                          </p>
+                                          {alert.description && (
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                              {alert.description}
+                                            </p>
+                                          )}
+                                          <p className="text-xs text-gray-400 mt-0.5">
+                                            {alert.user?.name ||
+                                              alert.user?.username ||
+                                              "Anônimo"}{" "}
+                                            •{" "}
+                                            {new Date(
+                                              alert.createdAt,
+                                            ).toLocaleDateString("pt-BR")}
+                                          </p>
+                                        </div>
+                                        <button
+                                          onClick={async () => {
+                                            await handleResolveAlert(alert.id);
+                                          }}
+                                          className="text-green-600 hover:text-green-800 dark:text-green-400 text-xs"
+                                        >
+                                          Resolver
+                                        </button>
+                                      </li>
+                                    );
+                                  })}
+                                  {lineAlerts.length > 5 && (
+                                    <li className="text-xs text-gray-400 text-center">
+                                      + {lineAlerts.length - 5} mais
+                                    </li>
+                                  )}
+                                </ul>
+                              )}
+                              {/* Opção de reportar novo alerta */}
+                              <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                <button
+                                  className="w-full text-left text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 flex items-center gap-1"
+                                  onClick={() => {
+                                    closeAlertPopover();
+                                    setAlertLineId(line.id);
+                                    setAlertModalOpen(true);
+                                  }}
+                                >
+                                  📌 Reportar problema
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                      </div>{" "}
                     </div>
                     {ascending[line.id] ? (
                       canUnmark(line.id) ? (
@@ -383,16 +547,6 @@ export default function LinesClient({
               </div>
 
               {isExpanded && (
-                // <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                //   {hasImage && (
-                //     <div className="mb-4">
-                //       <img
-                //         src={line.imageUrl ?? undefined}
-                //         alt={line.name}
-                //         className="w-full max-h-96 object-contain rounded-lg"
-                //       />
-                //     </div>
-                //   )}
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   {hasImage && (
                     <div
@@ -453,7 +607,6 @@ export default function LinesClient({
                     ))}
                   </div>
 
-                  {/* ⭐ LEGENDA DA ESTRELA SELECIONADA */}
                   {tempRating[line.id] && (
                     <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                       {
@@ -498,6 +651,7 @@ export default function LinesClient({
           );
         })}
       </div>
+
       {selectedImage && (
         <ImageModal
           src={selectedImage}
@@ -507,7 +661,6 @@ export default function LinesClient({
         />
       )}
 
-      {/* Modal de confirmação genérico */}
       <ConfirmModal
         isOpen={modalState.isOpen}
         title="Desmarcar boulder"
@@ -516,6 +669,21 @@ export default function LinesClient({
         cancelText="Cancelar"
         onConfirm={confirmRemove}
         onCancel={() => setModalState({ isOpen: false, lineId: null })}
+      />
+
+      <AddAlertModal
+        isOpen={alertModalOpen}
+        lineId={alertLineId}
+        onClose={() => {
+          setAlertModalOpen(false);
+          setAlertLineId("");
+        }}
+        onSuccess={() => {
+          setAlertModalOpen(false);
+          setAlertLineId("");
+          // Recarregar a página para atualizar os alertas
+          window.location.reload();
+        }}
       />
     </div>
   );

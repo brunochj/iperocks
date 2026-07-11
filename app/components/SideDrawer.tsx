@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import { signOutUser } from "@/lib/auth/logout";
 import Link from "next/link";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
-import { useTheme } from "./ThemeProvider"; // ← importe o hook
+import { useTheme } from "./ThemeProvider";
+import { apiFetch } from "@/lib/api-fetch";
 
 type SideDrawerProps = {
   userName: string;
@@ -16,8 +17,30 @@ export default function SideDrawer({
   isOpen,
   onClose,
 }: SideDrawerProps) {
-  const { theme, toggleTheme } = useTheme(); // ← use o contexto
+  const { theme, toggleTheme } = useTheme();
   const drawerRef = useRef<HTMLDivElement>(null);
+  const [alertCount, setAlertCount] = useState<number | null>(null);
+  const [loadingCount, setLoadingCount] = useState(false);
+
+  // Buscar contagem de alertas ativos quando o drawer abrir
+  useEffect(() => {
+    if (!isOpen) return;
+    const fetchAlertCount = async () => {
+      setLoadingCount(true);
+      try {
+        // Rota que retorna o total de alertas não resolvidos
+        const res = await apiFetch("/api/alerts/count");
+        const data = await res.json();
+        setAlertCount(data.count ?? 0);
+      } catch (error) {
+        console.error("Erro ao buscar contagem de alertas:", error);
+        setAlertCount(0);
+      } finally {
+        setLoadingCount(false);
+      }
+    };
+    fetchAlertCount();
+  }, [isOpen]);
 
   // Fechar ao clicar fora
   useEffect(() => {
@@ -41,8 +64,14 @@ export default function SideDrawer({
     };
   }, [isOpen, onClose]);
 
-  // Não precisa mais do useEffect para carregar tema
-  // Nem do estado local theme/setTheme
+  // Função para obter o texto do badge de alertas
+  const getAlertBadge = () => {
+    if (loadingCount) return "…";
+    if (alertCount === null) return "0";
+    if (alertCount === 0) return "0";
+    if (alertCount > 99) return "99+";
+    return String(alertCount);
+  };
 
   return (
     <>
@@ -90,9 +119,24 @@ export default function SideDrawer({
               Minhas Ascensões
             </Link>
           </li>
+          {/* 🔔 ALERTAS COM BADGE */}
+          <li>
+            <Link
+              href="/alerts"
+              onClick={onClose}
+              className="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+            >
+              <span>🚨 Alertas</span>
+              {alertCount !== null && alertCount > 0 && (
+                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {getAlertBadge()}
+                </span>
+              )}
+            </Link>
+          </li>
           <li>
             <button
-              onClick={toggleTheme} // ← usa o toggle do Provider
+              onClick={toggleTheme}
               className="block w-full text-left py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
             >
               {theme === "light" ? "🌙 Modo escuro" : "☀️ Modo claro"}
