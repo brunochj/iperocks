@@ -47,7 +47,7 @@ export default function AddAlertModal({ isOpen, lineId, onClose, onSuccess }: {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 mx-4">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Reportar problema</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
