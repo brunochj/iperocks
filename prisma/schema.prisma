@@ -25,6 +25,7 @@ model User {
   alerts          Alert[]
   ascents         Ascent[]
   reviews         Review[]
+  comments        Comment[]
 
   @@map("users")
 }
@@ -67,6 +68,7 @@ model Line {
   ascents     Ascent[]
   block       Block     @relation(fields: [blockId], references: [id], onDelete: Cascade)
   reviews     Review[]
+  comments    Comment[]
 
   @@unique([name, blockId])
   @@index([grade])
