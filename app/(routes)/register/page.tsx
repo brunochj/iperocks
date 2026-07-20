@@ -7,6 +7,7 @@ import Image from "next/image";
 import ThemeToggle from "../../components/ThemeToggle";
 import { apiFetch } from "@/lib/api-fetch";
 import { createClient } from "@/lib/supabase/client";
+import PasswordInput from "../../components/password-input";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -176,9 +177,9 @@ export default function RegisterPage() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Senha
               </label>
-              <input
+              <PasswordInput
+                id="register-password"
                 name="password"
-                type="password"
                 value={form.password}
                 onChange={handleChange}
                 onBlur={() => setPasswordTouched(true)}
@@ -192,9 +193,9 @@ export default function RegisterPage() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Confirmar senha
               </label>
-              <input
+              <PasswordInput
+                id="register-confirm-password"
                 name="confirmPassword"
-                type="password"
                 value={form.confirmPassword}
                 onChange={handleChange}
                 onBlur={() => setConfirmTouched(true)}

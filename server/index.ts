@@ -299,6 +299,7 @@ app.get('/api/home', async (req, res) => {
   }));
 
   const top5 = await prisma.user.findMany({
+    where: { isAdmin: false },
     select: {
       id: true,
       name: true,
@@ -313,6 +314,7 @@ app.get('/api/home', async (req, res) => {
   const userTotalAscents = await prisma.ascent.count({ where: { userId: dbUser.id } });
 
   const allUsersWithCount = await prisma.user.findMany({
+    where: { isAdmin: false },
     select: { id: true, _count: { select: { ascents: true } } },
   });
   const sorted = allUsersWithCount.sort((a, b) => b._count.ascents - a._count.ascents);
@@ -345,6 +347,7 @@ app.get('/api/ranking', async (req, res) => {
 
   const dbUser = await resolveDbUser(user);
   const users = await prisma.user.findMany({
+    where: { isAdmin: false },
     select: {
       id: true,
       name: true,
@@ -371,6 +374,7 @@ app.get('/api/ranking', async (req, res) => {
       currentUserRank = indexInTop50 + 1;
     } else {
       const allUsersWithCount = await prisma.user.findMany({
+        where: { isAdmin: false },
         select: { id: true, _count: { select: { ascents: true } } },
       });
       const sorted = allUsersWithCount.sort((a, b) => b._count.ascents - a._count.ascents);

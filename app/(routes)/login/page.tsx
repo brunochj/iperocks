@@ -12,6 +12,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ThemeToggle from "../../components/ThemeToggle";
 import Loader from "../../components/Loader";
+import PasswordInput from "../../components/password-input";
 
 const REMEMBER_IDENTIFIER_KEY = "iperocks_login_identifier";
 const REMEMBER_ME_KEY = "iperocks_remember_me";
@@ -170,8 +171,8 @@ export default function LoginPage() {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Senha
               </label>
-              <input
-                type="password"
+              <PasswordInput
+                id="login-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoCapitalize="none"

@@ -283,6 +283,7 @@ export async function getRankingUsers(limit: number): Promise<any[]> {
       `SELECT id, name, username, image, 
          (SELECT COUNT(*) FROM ascents WHERE ascents.userId = users.id) as ascents
        FROM users 
+       WHERE isAdmin = 0
        ORDER BY ascents DESC 
        LIMIT ?`,
       [limit]
@@ -298,7 +299,7 @@ export async function getRankingUsers(limit: number): Promise<any[]> {
   export async function getRankingFromCache(): Promise<any[]> {
     const db = await initDatabase();
     const result = await db.query(
-      'SELECT userId as id, name, username, image, ascents FROM ranking_cache ORDER BY ascents DESC'
+      'SELECT userId as id, name, username, image, ascents FROM ranking_cache WHERE isAdmin = 0 ORDER BY ascents DESC'
     );
     return result.values || [];
   }
