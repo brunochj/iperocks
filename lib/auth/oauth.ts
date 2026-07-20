@@ -40,6 +40,43 @@ export function getOAuthRedirectUrl(nextPath: string) {
   return buildAppDeepLink({ next: nextPath });
 }
 
+export async function signInWithApple(nextPath = '/home') {
+  const supabase = createClient();
+  const redirectTo = getOAuthRedirectUrl(nextPath);
+  const isNative = Capacitor.isNativePlatform();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'apple',
+    options: {
+      redirectTo,
+      skipBrowserRedirect: isNative,
+    },
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  if (isNative && data?.url) {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(OAUTH_PENDING_KEY, nextPath);
+    }
+
+    const authorizeUrl = new URL(data.url);
+    const redirectParam = authorizeUrl.searchParams.get('redirect_to');
+    console.log('[oauth] redirect_to in authorize URL:', redirectParam);
+
+    if (redirectParam && !redirectParam.startsWith(`${APP_DEEP_LINK_SCHEME}://`)) {
+      console.warn(
+        '[oauth] Supabase is not using the app deep link. Add this to Supabase → Authentication → Redirect URLs:',
+        redirectTo
+      );
+    }
+
+    await Browser.open({ url: data.url });
+  }
+}
+
 export async function signInWithGoogle(nextPath = '/home') {
   const supabase = createClient();
   const redirectTo = getOAuthRedirectUrl(nextPath);

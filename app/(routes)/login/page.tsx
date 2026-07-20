@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { apiFetch } from "@/lib/api-fetch";
-import { signInWithGoogle, redirectAuthenticatedUser } from "@/lib/auth/oauth";
+import { signInWithGoogle, signInWithApple, redirectAuthenticatedUser } from "@/lib/auth/oauth";
 import { isCurrentPath, navigateTo } from "@/lib/navigate";
 import { setAppSessionToken } from "@/lib/app-session-client";
 import { writeCachedUserProfile } from "@/lib/api-fetch";
@@ -26,6 +26,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const redirectedRef = useRef(false);
 
   useEffect(() => {
@@ -209,7 +210,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading || googleLoading}
+              disabled={loading || googleLoading || appleLoading}
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? <Loader size="sm" /> : "Entrar"}
@@ -229,7 +230,7 @@ export default function LoginPage() {
             </div>
             <button
               type="button"
-              disabled={loading || googleLoading}
+              disabled={loading || googleLoading || appleLoading}
               onClick={async () => {
                 setGoogleLoading(true);
                 setError("");
@@ -261,6 +262,26 @@ export default function LoginPage() {
                 />
               </svg>
               {googleLoading ? <Loader size="sm" /> : "Continuar com Google"}
+            </button>
+            <button
+              type="button"
+              disabled={loading || googleLoading || appleLoading}
+              onClick={async () => {
+                setAppleLoading(true);
+                setError("");
+                try {
+                  await signInWithApple(callbackUrl);
+                } catch {
+                  setError("Erro ao entrar com Apple.");
+                  setAppleLoading(false);
+                }
+              }}
+              className="mt-3 w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition disabled:opacity-50"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.52-3.23 0-1.44.65-2.2.46-3.06-.4C3.79 16.17 4.36 9.02 8.96 8.76c1.27.07 2.15.74 2.91.78.88-.18 1.73-.86 2.73-.78 1.16.1 2.04.6 2.64 1.49-2.38 1.43-1.82 4.57.53 5.46-.63 1.63-1.44 3.24-2.72 4.57zM12.05 8.67c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+              </svg>
+              {appleLoading ? <Loader size="sm" /> : "Continuar com Apple"}
             </button>
           </div>
 
