@@ -107,7 +107,7 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
 export function readCachedUserProfile() {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = sessionStorage.getItem(USER_CACHE_KEY);
+    const raw = localStorage.getItem(USER_CACHE_KEY);
     return raw ? (JSON.parse(raw) as Record<string, unknown>) : null;
   } catch {
     return null;
@@ -116,10 +116,10 @@ export function readCachedUserProfile() {
 
 export function writeCachedUserProfile(user: Record<string, unknown>) {
   if (typeof window === 'undefined') return;
-  sessionStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
+  localStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
 }
 
 export function clearCachedUserProfile() {
   if (typeof window === 'undefined') return;
-  sessionStorage.removeItem(USER_CACHE_KEY);
+  localStorage.removeItem(USER_CACHE_KEY);
 }

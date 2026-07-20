@@ -2,7 +2,7 @@
 
 import { useUser } from "@/hooks/useUser";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiFetch, writeCachedUserProfile } from "@/lib/api-fetch";
@@ -14,6 +14,12 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    if (!userLoading && user?.rulesAccepted) {
+      navigateTo("/home");
+    }
+  }, [user, userLoading]);
 
   // Definição dos slides (inclui boas-vindas, cada regra individualmente e aceitação final)
   const slides = [
