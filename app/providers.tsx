@@ -4,16 +4,21 @@ import { ThemeProvider } from './components/ThemeProvider';
 import { OAuthListener } from './components/oauth-listener';
 import { UserProvider } from './contexts/user-context';
 import { OfflineInitializer } from './components/OfflineInitializer';
-import { startSyncScheduler } from '@/lib/offline/sync';
+import { startSyncScheduler, syncOnReconnect } from '@/lib/offline/sync';
 import { useEffect } from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Iniciar o scheduler de sincronização quando o app carregar
     startSyncScheduler();
+
+    const handleOnline = () => {
+      console.log('[Providers] Back online, syncing pending operations...');
+      syncOnReconnect();
+    };
+    window.addEventListener('online', handleOnline);
+
     return () => {
-      // Opcional: parar o scheduler quando desmontar
-      // stopSyncScheduler();
+      window.removeEventListener('online', handleOnline);
     };
   }, []);
 

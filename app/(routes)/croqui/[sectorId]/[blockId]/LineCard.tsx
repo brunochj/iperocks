@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { apiFetch } from "@/lib/api-fetch";
+import { enqueueAndSync } from "@/lib/offline/sync";
+import { isOnline } from "@/lib/offline/connectivity";
 
 type LineCardProps = {
   line: {
@@ -26,12 +28,32 @@ export default function LineCard({
 
   const handleAscent = async () => {
     setLoading(true);
-    const res = await apiFetch("/api/ascent", {
+
+    // Optimistic update
+    setAscended(true);
+
+    if (isOnline()) {
+      try {
+        const res = await apiFetch("/api/ascent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lineId: line.id }),
+        });
+        if (res.ok) {
+          setLoading(false);
+          return;
+        }
+      } catch {
+        // Fall through to queue
+      }
+    }
+
+    // Offline or API failed: queue for later
+    await enqueueAndSync({
+      endpoint: "/api/ascent",
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lineId: line.id }),
+      body: { lineId: line.id },
     });
-    if (res.ok) setAscended(true);
     setLoading(false);
   };
 

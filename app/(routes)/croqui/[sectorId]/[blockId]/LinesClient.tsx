@@ -3,6 +3,8 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
 import { apiFetch } from "@/lib/api-fetch";
+import { enqueueAndSync } from "@/lib/offline/sync";
+import { isOnline } from "@/lib/offline/connectivity";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import ImageModal from "@/app/components/ImageModal";
 import AlertPopover from "@/app/components/AlertPopover";
@@ -170,17 +172,46 @@ export default function LinesClient({
   const handleAscent = async (lineId: string) => {
     if (!user) return;
     setLoading((prev) => ({ ...prev, [lineId]: true }));
-    const res = await apiFetch("/api/ascent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lineId }),
-    });
-    if (res.ok) {
-      setAscending((prev) => ({ ...prev, [lineId]: true }));
-      setShowReviewForm(lineId);
+
+    // Optimistic update
+    setAscending((prev) => ({ ...prev, [lineId]: true }));
+
+    if (isOnline()) {
+      try {
+        const res = await apiFetch("/api/ascent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lineId }),
+        });
+        if (res.ok) {
+          setShowReviewForm(lineId);
+        } else {
+          // API failed, queue for later
+          await enqueueAndSync({
+            endpoint: "/api/ascent",
+            method: "POST",
+            body: { lineId },
+          });
+          setShowReviewForm(lineId);
+        }
+      } catch {
+        await enqueueAndSync({
+          endpoint: "/api/ascent",
+          method: "POST",
+          body: { lineId },
+        });
+        setShowReviewForm(lineId);
+      }
     } else {
-      alert("Erro ao registrar ascensão");
+      // Offline: queue for later sync
+      await enqueueAndSync({
+        endpoint: "/api/ascent",
+        method: "POST",
+        body: { lineId },
+      });
+      setShowReviewForm(lineId);
     }
+
     setLoading((prev) => ({ ...prev, [lineId]: false }));
   };
 
@@ -195,17 +226,32 @@ export default function LinesClient({
     }
     setRatingError((prev) => ({ ...prev, [lineId]: "" }));
     const gradeSuggestion = tempGradeSuggestion[lineId] || null;
-    const res = await apiFetch("/api/ascent/review", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lineId, rating, gradeSuggestion }),
-    });
-    if (res.ok) {
-      setShowReviewForm(null);
-      window.location.reload();
-    } else {
-      alert("Erro ao salvar avaliação");
+
+    if (isOnline()) {
+      try {
+        const res = await apiFetch("/api/ascent/review", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ lineId, rating, gradeSuggestion }),
+        });
+        if (res.ok) {
+          setShowReviewForm(null);
+          window.location.reload();
+          return;
+        }
+      } catch {
+        // Fall through to queue
+      }
     }
+
+    // Offline or API failed: queue for later
+    await enqueueAndSync({
+      endpoint: "/api/ascent/review",
+      method: "PUT",
+      body: { lineId, rating, gradeSuggestion },
+    });
+    setShowReviewForm(null);
+    window.location.reload();
   };
 
   const handleRemoveAscent = (lineId: string) => {
@@ -216,17 +262,35 @@ export default function LinesClient({
   const confirmRemove = async () => {
     const lineId = modalState.lineId!;
     setLoading((prev) => ({ ...prev, [lineId]: true }));
-    const res = await apiFetch(`/api/ascent?lineId=${lineId}`, {
-      method: "DELETE",
-    });
-    if (res.ok) {
-      setAscending((prev) => ({ ...prev, [lineId]: false }));
-      window.location.reload();
-    } else {
-      alert("Erro ao remover ascensão");
+
+    // Optimistic update
+    setAscending((prev) => ({ ...prev, [lineId]: false }));
+
+    if (isOnline()) {
+      try {
+        const res = await apiFetch(`/api/ascent?lineId=${lineId}`, {
+          method: "DELETE",
+        });
+        if (res.ok) {
+          window.location.reload();
+          setModalState({ isOpen: false, lineId: null });
+          setLoading((prev) => ({ ...prev, [lineId]: false }));
+          return;
+        }
+      } catch {
+        // Fall through to queue
+      }
     }
-    setLoading((prev) => ({ ...prev, [lineId]: false }));
+
+    // Offline or API failed: queue for later
+    await enqueueAndSync({
+      endpoint: `/api/ascent?lineId=${lineId}`,
+      method: "DELETE",
+      body: null,
+    });
+    window.location.reload();
     setModalState({ isOpen: false, lineId: null });
+    setLoading((prev) => ({ ...prev, [lineId]: false }));
   };
 
   const toggleExpand = (lineId: string) => {

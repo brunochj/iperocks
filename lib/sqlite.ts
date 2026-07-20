@@ -59,6 +59,18 @@ export async function initDatabase() {
       );
     `);
 
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS alerts (
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        description TEXT,
+        resolved INTEGER DEFAULT 0,
+        lineId TEXT NOT NULL,
+        userId TEXT NOT NULL,
+        createdAt TEXT
+      );
+    `);
+
     console.log('✅ Banco SQLite inicializado');
     return db;
   } catch (error) {

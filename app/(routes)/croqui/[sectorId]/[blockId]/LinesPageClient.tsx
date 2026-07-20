@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api-fetch';
 import LinesClient from './LinesClient';
 import { SkeletonCard, SkeletonText } from '@/app/components/Skeleton';
+import { getLinesByBlock, getBlockById, getAlertsByLine } from '@/lib/data/croqui';
 
 export default function LinesPageClient({
   params,
@@ -39,7 +40,29 @@ export default function LinesPageClient({
         const json = await res.json();
         setData(json);
       } catch (error) {
-        console.error('Erro ao carregar linhas:', error);
+        console.error('Erro ao carregar linhas, usando dados locais:', error);
+        // Offline fallback: use bundled JSON data
+        try {
+          const { blockId } = await params;
+          const block = getBlockById(blockId);
+          const offlineLines = getLinesByBlock(blockId);
+          const lineIds = offlineLines.map((l) => l.id);
+          const alertsByLine = getAlertsByLine(lineIds);
+
+          setData({
+            blockName: block?.name || '',
+            blockDescription: block?.description || '',
+            lines: offlineLines,
+            ascendedIds: [],
+            grades: [...new Set(offlineLines.map((l) => l.grade))].sort(),
+            alertsByLine,
+            ratingMap: {},
+            gradeSuggestionMap: {},
+            userAscents: [],
+          });
+        } catch (fallbackError) {
+          console.error('Erro no fallback offline:', fallbackError);
+        }
       } finally {
         setDataReady(true);
       }
