@@ -154,7 +154,7 @@ export default function HomePage() {
                   <span>{u.name || u.username}</span>
                 </div>
                 <span className="text-gray-600">
-                  {u._count?.ascents || u.ascents} vias
+                  {u._count?.ascents ?? u.ascents ?? 0} vias
                 </span>
               </div>
             ))

@@ -124,9 +124,9 @@ export default function SideDrawer({
             <Link
               href="/alerts"
               onClick={onClose}
-              className="flex items-center justify-between py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+              className="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
             >
-              <span>🚨 Alertas</span>
+              <span className="material-symbols-outlined">report</span> Alertas
               {alertCount !== null && alertCount > 0 && (
                 <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                   {getAlertBadge()}
@@ -137,9 +137,9 @@ export default function SideDrawer({
           <li>
             <button
               onClick={toggleTheme}
-              className="block w-full text-left py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+              className="flex items-center gap-4 w-full text-left py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
             >
-              {theme === "light" ? "🌙 Modo escuro" : "☀️ Modo claro"}
+              {theme === "light" ? <><span className="material-symbols-outlined">dark_mode</span> Modo escuro</> : <><span className="material-symbols-outlined">light_mode</span> Modo claro</>}
             </button>
           </li>
           <li>

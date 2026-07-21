@@ -7,10 +7,10 @@ import { useUser } from "@/hooks/useUser";
 import Link from "next/link";
 
 const typeLabels: Record<string, string> = {
-  NEST: "🐦 Ninho de pássaro",
-  BROKEN_HOLD: "💔 Agarra quebrada",
-  FALL_RISK: "⚠️ Risco de queda",
-  NO_ACCESS: "🚧 Sem acesso",
+  NEST: "Ninho de pássaro",
+  BROKEN_HOLD: "Agarra quebrada",
+  FALL_RISK: "Risco de queda",
+  NO_ACCESS: "Sem acesso",
 };
 
 const typeColors: Record<string, string> = {

@@ -126,6 +126,18 @@ export default function LinesClient({
     setAlertPopover({ open: false, lineId: null });
   };
 
+  useEffect(() => {
+    if (!alertPopover.open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-alert-popover]')) {
+        closeAlertPopover();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [alertPopover.open]);
+
   // --- Fim Alert Popover ---
 
   // Determinar se a linha pode ser desmarcada (sem avaliação)
@@ -331,14 +343,14 @@ export default function LinesClient({
     string,
     { label: string; icon: string; color: string }
   > = {
-    FALL_RISK: { label: "Risco de queda", icon: "⚠️", color: "text-red-600" },
+    FALL_RISK: { label: "Risco de queda", icon: "report", color: "text-red-600" },
     BROKEN_HOLD: {
       label: "Agarra quebrada",
-      icon: "💔",
+      icon: "report",
       color: "text-orange-500",
     },
-    NEST: { label: "Ninho", icon: "🐦", color: "text-yellow-600" },
-    NO_ACCESS: { label: "Sem acesso", icon: "🚧", color: "text-gray-500" },
+    NEST: { label: "Ninho", icon: "report", color: "text-yellow-600" },
+    NO_ACCESS: { label: "Sem acesso", icon: "report", color: "text-gray-500" },
   };
 
   return (
@@ -479,14 +491,15 @@ export default function LinesClient({
                         className="text-red-600 text-sm font-medium flex items-center gap-0.5 hover:underline"
                         onClick={(e) => openAlertPopover(line.id, e)}
                       >
-                        🚨 {alertCount}
+                        <span className="material-symbols-outlined">report</span> {alertCount}
                       </button>
                       {alertPopover.open &&
                         alertPopover.lineId === line.id && (
                           <div
-                            className="absolute z-20 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-3 w-72 max-h-60 overflow-auto border dark:border-gray-700 -translate-x-1/2 left-1/2 top-full mt-1"
-                            onClick={(e) => e.stopPropagation()}
-                          >
+                              className="absolute z-20 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-3 w-72 max-h-60 overflow-auto border dark:border-gray-700 -translate-x-1/2 left-1/2 top-full mt-1"
+                              onClick={(e) => e.stopPropagation()}
+                              data-alert-popover
+                            >
                             <div className="flex justify-between items-center mb-2">
                               <span className="font-semibold text-sm dark:text-white">
                                 Alertas
@@ -516,7 +529,7 @@ export default function LinesClient({
                                     alert.type
                                   ] || {
                                     label: alert.type,
-                                    icon: "📌",
+                                    icon: "report",
                                     color: "text-gray-600",
                                   };
                                   return (
@@ -528,7 +541,7 @@ export default function LinesClient({
                                         <p
                                           className={`font-medium ${config.color}`}
                                         >
-                                          {config.icon} {config.label}
+                                          <span className="material-symbols-outlined align-middle text-base">{config.icon}</span> {config.label}
                                         </p>
                                         {alert.description && (
                                           <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -572,7 +585,7 @@ export default function LinesClient({
                                   setAlertModalOpen(true);
                                 }}
                               >
-                                📌 Reportar problema
+                                Reportar problema
                               </button>
                             </div>
                           </div>
@@ -589,7 +602,7 @@ export default function LinesClient({
                           disabled={loading[line.id]}
                           className="text-red-500 text-sm hover:text-red-700 disabled:opacity-50"
                         >
-                          {loading[line.id] ? "..." : "🗑️ Desfazer"}
+                          {loading[line.id] ? "..." : <><span className="material-symbols-outlined">delete</span> Desfazer</>}
                         </button>
                       ) : (
                         <span

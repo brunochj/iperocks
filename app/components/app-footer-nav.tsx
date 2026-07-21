@@ -4,9 +4,9 @@ import { usePathname } from "next/navigation";
 import AppLink from "./AppLink";
 
 const NAV_ITEMS = [
-  { href: "/home", label: "Home", icon: "🏠" },
-  { href: "/croqui", label: "Croqui", icon: "🗺️" },
-  { href: "/ranking", label: "Ranking", icon: "🏆" },
+  { href: "/home", label: "Home", icon: <span className="material-symbols-outlined">home</span> },
+  { href: "/croqui", label: "Croqui", icon: <span className="material-symbols-outlined">map</span> },
+  { href: "/ranking", label: "Ranking", icon: <span className="material-symbols-outlined">leaderboard</span> },
 ] as const;
 
 function isNavActive(pathname: string, href: string) {
