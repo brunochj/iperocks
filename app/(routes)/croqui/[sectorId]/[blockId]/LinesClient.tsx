@@ -429,131 +429,156 @@ export default function LinesClient({
                     className="w-16 h-16 object-cover rounded"
                   />
                 )}
-                <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {line.name}
-                      </h3>
-                      {ratingMap[line.id] && ratingMap[line.id] > 3 && (
-                        <span
-                          className="material-symbols-outlined text-yellow-500 text-xl"
-                          style={{ fontSize: "20px" }}
-                          title={`Avaliação média: ${ratingMap[line.id].toFixed(
-                            1,
-                          )}`}
-                        >
-                          crown
+                <div className="flex-1 space-y-1">
+                  {/* Line 1: Name + crown + grade */}
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {line.name}
+                    </h3>
+                    {ratingMap[line.id] && ratingMap[line.id] > 3 && (
+                      <span
+                        className="material-symbols-outlined text-yellow-500"
+                        style={{ fontSize: "20px" }}
+                        title={`Avaliação média: ${ratingMap[line.id].toFixed(1)}`}
+                      >
+                        crown
+                      </span>
+                    )}
+                    <span className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs px-2 py-0.5 rounded">
+                      {line.grade}
+                    </span>
+                  </div>
+
+                  {/* Line 2: Rating + suggestion */}
+                  {(ratingMap[line.id] || gradeSuggestionMap[line.id]) && (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                      {ratingMap[line.id] && (
+                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                          ★ {ratingMap[line.id].toFixed(1)}
                         </span>
                       )}
-                      {/* Ícone de alerta com contagem e popover */}
-                      {/* Botão único de alerta + reportar */}
-                      <div className="relative inline-block">
-                        <button
-                          className="text-red-600 text-sm font-medium flex items-center gap-0.5 hover:underline"
-                          onClick={(e) => openAlertPopover(line.id, e)}
-                        >
-                          🚨 {alertCount}
-                        </button>
-                        {alertPopover.open &&
-                          alertPopover.lineId === line.id && (
-                            <div
-                              className="absolute z-20 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-3 w-72 max-h-60 overflow-auto border dark:border-gray-700 -translate-x-1/2 left-1/2 top-full mt-1"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <div className="flex justify-between items-center mb-2">
-                                <span className="font-semibold text-sm dark:text-white">
-                                  Alertas
-                                </span>
-                                <button
-                                  className="text-xs text-indigo-600 hover:underline"
-                                  onClick={() => {
-                                    closeAlertPopover();
-                                    router.push(`/alerts?lineId=${line.id}`);
-                                  }}
-                                >
-                                  Ver todos
-                                </button>
-                              </div>
-                              {loadingAlerts ? (
-                                <p className="text-sm text-gray-500">
-                                  Carregando...
-                                </p>
-                              ) : lineAlerts.length === 0 ? (
-                                <p className="text-sm text-gray-500">
-                                  Nenhum alerta ativo
-                                </p>
-                              ) : (
-                                <ul className="space-y-2">
-                                  {lineAlerts.map((alert) => {
-                                    const config = alertTypeConfig[
-                                      alert.type
-                                    ] || {
-                                      label: alert.type,
-                                      icon: "📌",
-                                      color: "text-gray-600",
-                                    };
-                                    return (
-                                      <li
-                                        key={alert.id}
-                                        className="flex justify-between items-start text-sm border-b dark:border-gray-700 pb-1"
-                                      >
-                                        <div>
-                                          <p
-                                            className={`font-medium ${config.color}`}
-                                          >
-                                            {config.icon} {config.label}
-                                          </p>
-                                          {alert.description && (
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                              {alert.description}
-                                            </p>
-                                          )}
-                                          <p className="text-xs text-gray-400 mt-0.5">
-                                            {alert.user?.name ||
-                                              alert.user?.username ||
-                                              "Anônimo"}{" "}
-                                            •{" "}
-                                            {new Date(
-                                              alert.createdAt,
-                                            ).toLocaleDateString("pt-BR")}
-                                          </p>
-                                        </div>
-                                        <button
-                                          onClick={async () => {
-                                            await handleResolveAlert(alert.id);
-                                          }}
-                                          className="text-green-600 hover:text-green-800 dark:text-green-400 text-xs"
-                                        >
-                                          Resolver
-                                        </button>
-                                      </li>
-                                    );
-                                  })}
-                                  {lineAlerts.length > 5 && (
-                                    <li className="text-xs text-gray-400 text-center">
-                                      + {lineAlerts.length - 5} mais
-                                    </li>
-                                  )}
-                                </ul>
-                              )}
-                              {/* Opção de reportar novo alerta */}
-                              <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-                                <button
-                                  className="w-full text-left text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 flex items-center gap-1"
-                                  onClick={() => {
-                                    closeAlertPopover();
-                                    setAlertLineId(line.id);
-                                    setAlertModalOpen(true);
-                                  }}
-                                >
-                                  📌 Reportar problema
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                      </div>{" "}
+                      {gradeSuggestionMap[line.id] && (
+                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                          Sugestão: {gradeSuggestionMap[line.id]}
+                        </span>
+                      )}
                     </div>
+                  )}
+
+                  {/* Line 3: Description */}
+                  {line.description && !isExpanded && (
+                    <p className="text-gray-600 dark:text-gray-400 text-sm font-bold line-clamp-2">
+                      {line.description}
+                    </p>
+                  )}
+
+                  {/* Line 4: Alerts + button */}
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="relative inline-block">
+                      <button
+                        className="text-red-600 text-sm font-medium flex items-center gap-0.5 hover:underline"
+                        onClick={(e) => openAlertPopover(line.id, e)}
+                      >
+                        🚨 {alertCount}
+                      </button>
+                      {alertPopover.open &&
+                        alertPopover.lineId === line.id && (
+                          <div
+                            className="absolute z-20 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-3 w-72 max-h-60 overflow-auto border dark:border-gray-700 -translate-x-1/2 left-1/2 top-full mt-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="font-semibold text-sm dark:text-white">
+                                Alertas
+                              </span>
+                              <button
+                                className="text-xs text-indigo-600 hover:underline"
+                                onClick={() => {
+                                  closeAlertPopover();
+                                  router.push(`/alerts?lineId=${line.id}`);
+                                }}
+                              >
+                                Ver todos
+                              </button>
+                            </div>
+                            {loadingAlerts ? (
+                              <p className="text-sm text-gray-500">
+                                Carregando...
+                              </p>
+                            ) : lineAlerts.length === 0 ? (
+                              <p className="text-sm text-gray-500">
+                                Nenhum alerta ativo
+                              </p>
+                            ) : (
+                              <ul className="space-y-2">
+                                {lineAlerts.map((alert) => {
+                                  const config = alertTypeConfig[
+                                    alert.type
+                                  ] || {
+                                    label: alert.type,
+                                    icon: "📌",
+                                    color: "text-gray-600",
+                                  };
+                                  return (
+                                    <li
+                                      key={alert.id}
+                                      className="flex justify-between items-start text-sm border-b dark:border-gray-700 pb-1"
+                                    >
+                                      <div>
+                                        <p
+                                          className={`font-medium ${config.color}`}
+                                        >
+                                          {config.icon} {config.label}
+                                        </p>
+                                        {alert.description && (
+                                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            {alert.description}
+                                          </p>
+                                        )}
+                                        <p className="text-xs text-gray-400 mt-0.5">
+                                          {alert.user?.name ||
+                                            alert.user?.username ||
+                                            "Anônimo"}{" "}
+                                          •{" "}
+                                          {new Date(
+                                            alert.createdAt,
+                                          ).toLocaleDateString("pt-BR")}
+                                        </p>
+                                      </div>
+                                      <button
+                                        onClick={async () => {
+                                          await handleResolveAlert(alert.id);
+                                        }}
+                                        className="text-green-600 hover:text-green-800 dark:text-green-400 text-xs"
+                                      >
+                                        Resolver
+                                      </button>
+                                    </li>
+                                  );
+                                })}
+                                {lineAlerts.length > 5 && (
+                                  <li className="text-xs text-gray-400 text-center">
+                                    + {lineAlerts.length - 5} mais
+                                  </li>
+                                )}
+                              </ul>
+                            )}
+                            <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+                              <button
+                                className="w-full text-left text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 flex items-center gap-1"
+                                onClick={() => {
+                                  closeAlertPopover();
+                                  setAlertLineId(line.id);
+                                  setAlertModalOpen(true);
+                                }}
+                              >
+                                📌 Reportar problema
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                    </div>
+
                     {ascending[line.id] ? (
                       canUnmark(line.id) ? (
                         <button
@@ -583,30 +608,10 @@ export default function LinesClient({
                         disabled={loading[line.id]}
                         className="bg-green-500 text-white px-3 py-1 rounded text-sm disabled:opacity-50"
                       >
-                        {loading[line.id] ? "..." : "Completei"}
+                        {loading[line.id] ? "..." : "Cadena!"}
                       </button>
                     )}
                   </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs px-2 py-1 rounded">
-                      {line.grade}
-                    </span>
-                    {ratingMap[line.id] && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        ★ {ratingMap[line.id].toFixed(1)}
-                      </span>
-                    )}
-                    {gradeSuggestionMap[line.id] && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        Sugestão: {gradeSuggestionMap[line.id]}
-                      </span>
-                    )}
-                  </div>
-                  {line.description && !isExpanded && (
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-2 line-clamp-2">
-                      {line.description}
-                    </p>
-                  )}
                 </div>
               </div>
 
@@ -672,7 +677,7 @@ export default function LinesClient({
                   </div>
 
                   {tempRating[line.id] && (
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 my-2 font-bold">
                       {
                         starLabels[
                           tempRating[line.id] as keyof typeof starLabels
