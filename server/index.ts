@@ -551,7 +551,7 @@ app.put('/api/ascent/review', async (req, res) => {
   const dbUser = await resolveDbUser(user);
   if (!dbUser) return res.status(404).json({ error: 'Usuário não encontrado' });
 
-  const { lineId, rating, gradeSuggestion } = req.body;
+  const { lineId, rating, gradeSuggestion, completedAt } = req.body;
   if (!lineId) return res.status(400).json({ error: 'lineId obrigatório' });
 
   const ascent = await prisma.ascent.findUnique({
@@ -561,7 +561,11 @@ app.put('/api/ascent/review', async (req, res) => {
 
   await prisma.ascent.update({
     where: { id: ascent.id },
-    data: { rating: rating ?? null, gradeSuggestion: gradeSuggestion || null },
+    data: {
+      rating: rating ?? null,
+      gradeSuggestion: gradeSuggestion || null,
+      ...(completedAt && { createdAt: new Date(completedAt) }),
+    },
   });
   return res.json({ success: true });
 });

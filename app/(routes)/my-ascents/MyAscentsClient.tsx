@@ -1,7 +1,15 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { CachedImage } from "@/hooks/useCachedImage";
+import { apiFetch } from "@/lib/api-fetch";
+import { enqueueAndSync } from "@/lib/offline/sync";
+import { isOnline } from "@/lib/offline/connectivity";
+
+const gradeOptions = [
+  "V0","V1","V2","V3","V4","V5","V6","V7","V8","V9",
+  "V10","V11","V12","V13","V14","V15","V16","V17","Projeto",
+];
 
 export default function MyAscentsClient({
   ascents,
@@ -16,30 +24,92 @@ export default function MyAscentsClient({
     "date-desc" | "grade-asc" | "grade-desc" | "name-asc"
   >("date-desc");
 
-  // Função auxiliar para ordenar graus
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editRating, setEditRating] = useState<number>(0);
+  const [editGradeSuggestion, setEditGradeSuggestion] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [saving, setSaving] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setEditingId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const openEdit = (ascent: any) => {
+    setEditingId(ascent.id);
+    setEditRating(ascent.rating || 0);
+    setEditGradeSuggestion(ascent.gradeSuggestion || "");
+    const date = new Date(ascent.completedAt);
+    setEditDate(date.toISOString().split("T")[0]);
+  };
+
+  const saveEdit = async (ascent: any) => {
+    setSaving(true);
+    const body: Record<string, any> = {
+      lineId: ascent.lineId,
+      rating: editRating > 0 ? editRating : null,
+      gradeSuggestion: editGradeSuggestion || null,
+    };
+    if (editDate) {
+      body.completedAt = new Date(editDate + "T12:00:00").toISOString();
+    }
+
+    console.log("[saveEdit] body:", body);
+
+    try {
+      if (isOnline()) {
+        const res = await apiFetch("/api/ascent/review", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const json = await res.json().catch(() => ({}));
+        console.log("[saveEdit] response:", res.status, json);
+        if (res.ok) {
+          window.location.reload();
+          return;
+        }
+        setSaving(false);
+        return;
+      }
+
+      await enqueueAndSync({
+        endpoint: "/api/ascent/review",
+        method: "PUT",
+        body,
+      });
+      window.location.reload();
+    } catch (error) {
+      console.error("Erro ao salvar ascensão:", error);
+      setSaving(false);
+    }
+  };
+
   const getGradeValue = (grade: string): number => {
     if (grade === "Projeto") return 999;
     const match = grade.match(/V(\d+)/i);
     return match ? parseInt(match[1], 10) : 0;
   };
 
-  // Filtrar e ordenar
   const filteredAscents = useMemo(() => {
     let filtered = ascents;
 
-    // Busca por nome (case insensitive)
     if (searchTerm.trim()) {
       filtered = filtered.filter((a) =>
         a.lineName.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
-    // Filtro por grau
     if (filterGrade) {
       filtered = filtered.filter((a) => a.grade === filterGrade);
     }
 
-    // Ordenação
     if (sortBy === "date-desc") {
       filtered.sort(
         (a, b) =>
@@ -64,7 +134,6 @@ export default function MyAscentsClient({
         </h1>
       </div>
 
-      {/* Barra de busca */}
       <div className="mb-4">
         <input
           type="text"
@@ -75,7 +144,6 @@ export default function MyAscentsClient({
         />
       </div>
 
-      {/* Filtro e ordenação */}
       <div className="flex flex-wrap gap-3 mb-6">
         <select
           value={filterGrade}
@@ -102,7 +170,6 @@ export default function MyAscentsClient({
         </select>
       </div>
 
-      {/* Lista */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Link
@@ -118,44 +185,143 @@ export default function MyAscentsClient({
           </p>
         )}
         {filteredAscents.map((ascent) => (
-          <Link
+          <div
             key={ascent.id}
-            href={`/croqui/${ascent.sectorId}/${ascent.blockId}?expandLine=${ascent.lineId}`}
-            className="block bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900 p-4 hover:shadow-md dark:hover:shadow-gray-900 transition"
+            className="relative bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900 p-4 hover:shadow-md dark:hover:shadow-gray-900 transition"
           >
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                  {ascent.lineName}
-                </h3>
-                <div className="flex gap-2 text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  <span className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded">
-                    {ascent.grade}
-                  </span>
-                  <span>
-                    {new Date(ascent.completedAt).toLocaleDateString("pt-BR")}
-                  </span>
+            <Link
+              href={`/croqui/${ascent.sectorId}/${ascent.blockId}?expandLine=${ascent.lineId}`}
+              className="block"
+            >
+              <div className="flex items-start gap-3">
+                {ascent.imageUrl && (
+                  <CachedImage
+                    src={ascent.imageUrl}
+                    alt={ascent.lineName}
+                    className="w-14 h-14 object-cover rounded shrink-0"
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start gap-2">
+                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white truncate">
+                      {ascent.lineName}
+                    </h3>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        editingId === ascent.id ? setEditingId(null) : openEdit(ascent);
+                      }}
+                      className="shrink-0 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                    >
+                      <span className="material-symbols-outlined text-gray-400 dark:text-gray-500" style={{ fontSize: "20px" }}>
+                        more_vert
+                      </span>
+                    </button>
+                  </div>
+                  <div className="flex gap-2 text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <span className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded">
+                      {ascent.grade}
+                    </span>
+                    <span>
+                      {new Date(ascent.completedAt).toLocaleDateString("pt-BR")}
+                    </span>
+                  </div>
+                  {ascent.rating && (
+                    <span className="text-xs text-yellow-600 dark:text-yellow-500 mt-1 block">
+                      ★ {ascent.rating}/5
+                    </span>
+                  )}
+                  {ascent.gradeSuggestion && (
+                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
+                      Sugestão: {ascent.gradeSuggestion}
+                    </span>
+                  )}
                 </div>
-                {ascent.rating && (
-                  <span className="text-xs text-yellow-600 dark:text-yellow-500 mt-1 block">
-                    ★ {ascent.rating}/5
-                  </span>
-                )}
-                {ascent.gradeSuggestion && (
-                  <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
-                    Sugestão: {ascent.gradeSuggestion}
-                  </span>
-                )}
               </div>
-              {ascent.imageUrl && (
-                <CachedImage
-                  src={ascent.imageUrl}
-                  alt={ascent.lineName}
-                  className="w-12 h-12 object-cover rounded"
+            </Link>
+
+            {/* Dropdown menu */}
+            {editingId === ascent.id && (
+              <div
+                ref={dropdownRef}
+                className="absolute right-3 top-10 z-20 bg-white dark:bg-gray-800 shadow-lg rounded-lg border dark:border-gray-700 p-4 w-72"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">
+                  Editar ascensão
+                </h4>
+
+                {/* Rating */}
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Nota
+                </label>
+                <div className="flex items-center gap-1 mb-3">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setEditRating(star === editRating ? 0 : star)}
+                    >
+                      <span
+                        className={
+                          star <= editRating
+                            ? "text-yellow-500 text-xl"
+                            : "text-gray-300 text-xl"
+                        }
+                      >
+                        ★
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Grade suggestion */}
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Sugestão de grau
+                </label>
+                <select
+                  value={editGradeSuggestion}
+                  onChange={(e) => setEditGradeSuggestion(e.target.value)}
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded p-1.5 text-sm mb-3 bg-white dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">Nenhuma</option>
+                  {gradeOptions.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Date */}
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Data da ascensão
+                </label>
+                <input
+                  type="date"
+                  value={editDate}
+                  onChange={(e) => setEditDate(e.target.value)}
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded p-1.5 text-sm mb-3 bg-white dark:bg-gray-700 dark:text-white"
                 />
-              )}
-            </div>
-          </Link>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="flex-1 text-sm px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => saveEdit(ascent)}
+                    disabled={saving}
+                    className="flex-1 text-sm px-3 py-1.5 rounded bg-indigo-500 text-white hover:bg-indigo-600 disabled:opacity-50"
+                  >
+                    {saving ? "Salvando..." : "Salvar"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         ))}
       </div>
     </div>

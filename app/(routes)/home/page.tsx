@@ -6,6 +6,7 @@ import { navigateTo, isCurrentPath } from "@/lib/navigate";
 import AppLink from "@/app/components/AppLink";
 import GradeChart from "@/app/components/GradeChart";
 import CollapsibleCard from "@/app/components/CollapsibleCard";
+import InfoCard from "@/app/components/InfoCard";
 import { apiFetch } from "@/lib/api-fetch";
 import {
   Skeleton,
@@ -241,6 +242,8 @@ export default function HomePage() {
           Encontrou um problema? Reporte no croqui →
         </Link>
       </CollapsibleCard>
+
+      <InfoCard />
     </div>
   );
 }

@@ -28,44 +28,49 @@ export default function MyAscentsPage() {
   useEffect(() => {
     if (!user) return;
 
+    let cancelled = false;
     const loadData = async () => {
       try {
         const res = await apiFetch("/api/my-ascents");
         const data = await res.json();
-        setAscents(data.ascents || []);
-        setGrades(data.grades || []);
+        if (!cancelled) {
+          setAscents(data.ascents || []);
+          setGrades(data.grades || []);
+        }
       } catch (error) {
         console.error("Erro ao carregar ascensões, tentando dados locais:", error);
-        // Offline fallback: try to load from SQLite on native
         if (Capacitor.isNativePlatform()) {
           try {
             const { getAscentsByUserWithDetails, getDistinctGradesFromAscents } = await import("@/lib/sqlite");
             const localAscents = await getAscentsByUserWithDetails(user.id);
             const localGrades = await getDistinctGradesFromAscents(user.id);
-            setAscents(localAscents.map((a: any) => ({
-              id: a.id,
-              lineId: a.lineId,
-              lineName: a.lineName,
-              grade: a.grade,
-              imageUrl: a.imageUrl || null,
-              completedAt: a.createdAt,
-              rating: a.rating || null,
-              gradeSuggestion: a.gradeSuggestion || null,
-              sectorId: a.sectorId,
-              blockId: a.blockId,
-            })));
-            setGrades(localGrades);
+            if (!cancelled) {
+              setAscents(localAscents.map((a: any) => ({
+                id: a.id,
+                lineId: a.lineId,
+                lineName: a.lineName,
+                grade: a.grade,
+                imageUrl: a.imageUrl || null,
+                completedAt: a.createdAt,
+                rating: a.rating || null,
+                gradeSuggestion: a.gradeSuggestion || null,
+                sectorId: a.sectorId,
+                blockId: a.blockId,
+              })));
+              setGrades(localGrades);
+            }
           } catch (sqliteError) {
             console.error("Erro ao carregar dados locais:", sqliteError);
           }
         }
       } finally {
-        setDataReady(true);
+        if (!cancelled) setDataReady(true);
       }
     };
 
     void loadData();
-  }, [user]);
+    return () => { cancelled = true; };
+  }, [user?.id]);
 
   if (loading || !dataReady) {
     return (
