@@ -124,7 +124,7 @@ export default function SideDrawer({
             <Link
               href="/alerts"
               onClick={onClose}
-              className="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+              className="flex items-center gap-4 py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
             >
               <span className="material-symbols-outlined">report</span> Alertas
               {alertCount !== null && alertCount > 0 && (

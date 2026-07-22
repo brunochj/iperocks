@@ -1,6 +1,7 @@
 "use client";
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { CachedImage } from "@/hooks/useCachedImage";
 
 export default function MyAscentsClient({
   ascents,
@@ -147,7 +148,7 @@ export default function MyAscentsClient({
                 )}
               </div>
               {ascent.imageUrl && (
-                <img
+                <CachedImage
                   src={ascent.imageUrl}
                   alt={ascent.lineName}
                   className="w-12 h-12 object-cover rounded"

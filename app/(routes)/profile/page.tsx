@@ -4,8 +4,8 @@ import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api-fetch";
-import Image from "next/image";
 import { Skeleton, SkeletonCard, SkeletonText } from "@/app/components/Skeleton";
+import { CachedImage } from "@/hooks/useCachedImage";
 
 export default function ProfilePage() {
   const { user, loading } = useUser();
@@ -79,7 +79,7 @@ export default function ProfilePage() {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-6">
         <div className="flex items-center gap-4">
           {userInfo.image ? (
-            <img
+            <CachedImage
               src={userInfo.image}
               alt={userInfo.name || ""}
               className="w-20 h-20 rounded-full object-cover"

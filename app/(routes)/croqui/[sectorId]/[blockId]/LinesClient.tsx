@@ -9,6 +9,7 @@ import ConfirmModal from "@/app/components/ConfirmModal";
 import ImageModal from "@/app/components/ImageModal";
 import AlertPopover from "@/app/components/AlertPopover";
 import AddAlertModal from "@/app/components/AddAlertModal";
+import { CachedImage } from "@/hooks/useCachedImage";
 
 type Line = {
   id: string;
@@ -435,7 +436,7 @@ export default function LinesClient({
             >
               <div className="flex items-start gap-4">
                 {hasImage && (
-                  <img
+                  <CachedImage
                     src={line.imageUrl ?? undefined}
                     alt={line.name}
                     className="w-16 h-16 object-cover rounded"
@@ -635,7 +636,7 @@ export default function LinesClient({
                       className="mb-4 cursor-pointer"
                       onClick={() => setSelectedImage(line.imageUrl ?? null)}
                     >
-                      <img
+                      <CachedImage
                         src={line.imageUrl ?? undefined}
                         alt={line.name}
                         className="w-full max-h-96 object-contain rounded-lg"

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { apiFetch } from "@/lib/api-fetch";
 import { enqueueAndSync } from "@/lib/offline/sync";
 import { isOnline } from "@/lib/offline/connectivity";
+import { CachedImage } from "@/hooks/useCachedImage";
 
 type LineCardProps = {
   line: {
@@ -60,7 +61,7 @@ export default function LineCard({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-900 p-4 flex items-start gap-4">
       {line.imageUrl && (
-        <img
+        <CachedImage
           src={line.imageUrl}
           alt={line.name}
           className="w-16 h-16 object-cover rounded"
