@@ -67,7 +67,7 @@ export default function LoginPage() {
             'Esta conta foi criada com Google. Use o botão "Continuar com Google".'
           );
         } else {
-          setError(data.error ?? 'Credenciais inválidas. Tente novamente.');
+          setError(data.error ?? 'Usuário e/ou senha incorreto');
         }
         return;
       }
@@ -115,7 +115,7 @@ export default function LoginPage() {
       const destination = data.user?.rulesAccepted ? callbackUrl : "/onboarding";
       navigateTo(destination);
     } catch {
-      setError("Credenciais inválidas. Tente novamente.");
+      setError("Usuário e/ou senha incorreto.");
     } finally {
       setLoading(false);
     }

@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'Usuário e/ou senha incorreto' }, { status: 401 });
     }
 
     // 2. Tentar login com Supabase
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
         }
       }
 
-      return NextResponse.json({ error: 'Credenciais inválidas' }, { status: 401 });
+      return NextResponse.json({ error: 'Usuário e/ou senha incorreto' }, { status: 401 });
     }
 
     // 3. Login bem-sucedido
