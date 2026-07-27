@@ -199,3 +199,16 @@ export async function getSupabaseAdminUser(userId: string): Promise<AdminUser | 
 export function hasServiceRoleKey() {
   return Boolean(getSupabaseConfig().serviceRoleKey);
 }
+
+export async function updateSupabaseUserPassword(userId: string, newPassword: string): Promise<boolean> {
+  const { serviceRoleKey } = getSupabaseConfig();
+  if (!serviceRoleKey) return false;
+
+  const { status } = await requestJson(`/auth/v1/admin/users/${userId}`, {
+    method: 'PUT',
+    apiKey: serviceRoleKey,
+    body: { password: newPassword },
+  });
+
+  return status >= 200 && status < 300;
+}
